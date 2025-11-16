@@ -75,12 +75,6 @@ The game features onscreen controls for mobile browsers and can be installed as 
    
    **Note**: Service workers require HTTPS or localhost to function properly.
 
-### Android App (Optional)
-1. Install Cordova CLI: `npm install -g cordova`
-2. Add Android platform: `cordova platform add android`
-3. Build the app: `cordova build android`
-4. Install on device: `cordova run android`
-
 ## Usage
 
 ### Desktop Controls

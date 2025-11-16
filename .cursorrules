@@ -1,0 +1,155 @@
+# AstroHunter - Cursor AI Rules
+
+## Project Overview
+This is an Asteroids-style game built with ES6 modules, HTML5 Canvas, and modern JavaScript. The game uses a class-based architecture with entity-component patterns and state management.
+
+## Code Style & Standards
+
+### Formatting
+- Use Biome for all formatting and linting
+- Run `npm run check` before committing
+- Use tabs for indentation (configured in biome.json)
+- Use double quotes for strings
+- Trailing commas in multi-line objects/arrays
+
+### Code Organization
+- All game logic in `app/src/`
+- Use ES6 modules with explicit imports/exports
+- One class per file
+- Keep files focused and single-purpose
+
+### Constants & Configuration
+- All magic numbers should be in `app/src/constants.js`
+- Use `Keys` object for key codes
+- Use `Constants` object for game values
+- Group related constants (UI, TIMERS, MATH, etc.)
+
+### Naming Conventions
+- Classes: PascalCase (e.g., `GameState`, `Ship`)
+- Files: lowercase with hyphens (e.g., `gamestate.js`, `start-state.js`)
+- Variables/functions: camelCase (e.g., `frameTime`, `Update()`)
+- Constants: UPPER_SNAKE_CASE (e.g., `SCR_WIDTH`, `SHIP_RADIUS`)
+
+### Documentation
+- Add simple one-line comments at the top of each file describing its purpose
+- Add brief comments for methods explaining what they do
+- Keep documentation concise - not as deep as JSDoc
+- Focus on "what" not "how" in comments
+
+## Architecture Patterns
+
+### Entity System
+- All game objects inherit from `Entity` class
+- Entities have `pos` (Vector), `dir` (Vector), `radius`, `created` timestamp
+- Entities implement `Update()` and `Draw()` methods
+- Use `IsColliding()` for collision detection
+- Use `CapOnScreen()` for screen wrapping
+
+### State Management
+- Game states extend `State` base class
+- States are managed by `Game.SetState()`
+- Each state handles its own input events
+- States must clean up event listeners in `RemoveEvents()` or similar
+
+### Canvas Rendering
+- Use `Canvas` class for all drawing operations
+- All coordinates use logical dimensions (`logicalWidth`, `logicalHeight`)
+- Canvas automatically scales to screen size
+- Use `DrawText()`, `DrawRect()`, `DrawPolyLine()` methods
+- Use `DrawUIBox()` helper for UI boxes
+
+### Vector Math
+- Use `Vector` class for all 2D math operations
+- Vectors are mutable (methods modify the vector)
+- Use `Rotate()`, `Add()`, `Mul()`, `Div()`, `Normalize()` methods
+- Cache `DEG_TO_RAD` constant is available
+
+## Performance Guidelines
+
+### Optimization
+- Use `for...in` loops for object iteration (slightly faster than `Object.keys().forEach()`)
+- Cache frequently accessed values (e.g., `this.game.canvas.logicalWidth`)
+- Clamp frameTime to prevent physics issues: `Math.min(frameTime, Constants.MATH.FRAME_TIME_MAX)`
+- Throttle resize handlers (already implemented)
+
+### Memory Management
+- Properly remove event listeners when states change
+- Delete entities from objects when destroyed
+- Clear intervals/timers in cleanup methods
+
+## Error Handling
+
+### Required Patterns
+- Wrap localStorage operations in try/catch
+- Validate canvas element exists in constructor
+- Handle missing/null values gracefully
+- Use underscore prefix for intentionally unused variables (`_e`)
+
+## Common Patterns
+
+### Creating Entities
+```javascript
+const id = `EntityType${this.counter}`;
+this.entities[id] = new EntityType(id, x, y, ...);
+this.counter++;
+```
+
+### Updating Entities
+```javascript
+for (const key in this.entities) {
+    this.entities[key].Update(this.game.frameTime, ...);
+}
+```
+
+### Drawing Entities
+```javascript
+for (const key in this.entities) {
+    this.entities[key].Draw(this.game.canvas);
+}
+```
+
+### Input Handling
+- Use `Keys` constants for key codes
+- Use `this.game.input.AddKeyDownEvent(Keys.SPACE, callback)`
+- Clear input events when changing states: `this.game.input.ClearInputEvents()`
+
+## Testing Considerations
+- No test framework currently configured
+- Focus on manual testing and code review
+- Consider adding tests for core logic (Vector, Entity, collision detection)
+
+## File Structure
+- `main.js` - Game class, main loop, state management
+- `gamestate.js` - Main gameplay state
+- `startstate.js` - Title screen
+- `gameoverstate.js` - Game over screen
+- `newwavestate.js` - Wave transition screen
+- `entity.js` - Base entity class
+- `ship.js`, `asteroid.js`, `bullet.js`, `explosion.js` - Game entities
+- `vector.js` - 2D math utilities
+- `canvas.js` - Rendering system
+- `input.js` - Input handling
+- `sound.js` - Audio management
+- `constants.js` - All game constants
+- `states.js` - State enum
+- `utils.js` - Utility functions
+
+## When Making Changes
+
+1. **Always run `npm run check`** before committing
+2. **Use constants** instead of magic numbers
+3. **Follow existing patterns** - maintain consistency
+4. **Update documentation** if adding new features
+5. **Clean up resources** - remove listeners, clear timers
+6. **Test on mobile** - ensure touch controls work
+7. **Test resizing** - ensure game scales properly
+
+## Common Gotchas
+
+- Canvas uses logical dimensions for gameplay, physical dimensions for display
+- Event listeners must be stored and properly removed
+- `frameTime` is in milliseconds, not seconds
+- Vector operations are mutable (modify the vector)
+- Use `Constants.MATH.FULL_CIRCLE_DEG` instead of `360`
+- Use `Keys` constants instead of numeric key codes
+
