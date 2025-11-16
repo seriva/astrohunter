@@ -42,6 +42,8 @@ export class Game {
 		this.left = document.getElementById("left");
 		this.right = document.getElementById("right");
 		this.fire = document.getElementById("fire");
+
+		// Helper function to place and size mobile buttons
 		const PlaceAndSizeButtons = () => {
 			if (mobileAndTabletcheck()) {
 				const setButtons = (button, size, x, y) => {
@@ -209,57 +211,45 @@ export class Game {
 	// Shows or hides mobile control buttons.
 	ShowControlButtons(visible) {
 		if (!mobileAndTabletcheck()) return;
-		this.forward.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-		this.left.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-		this.right.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-		this.fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-		if (visible) {
-			this.forward.style.visibility = "visible";
-			this.left.style.visibility = "visible";
-			this.right.style.visibility = "visible";
-			this.fire.style.visibility = "visible";
-		} else {
-			this.forward.style.visibility = "hidden";
-			this.left.style.visibility = "hidden";
-			this.right.style.visibility = "hidden";
-			this.fire.style.visibility = "hidden";
-		}
+		const buttons = [this.forward, this.left, this.right, this.fire];
+		buttons.forEach((button) => {
+			button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+			button.style.visibility = visible ? "visible" : "hidden";
+		});
 	}
 
 	// Handles collisions between asteroids (bouncing them apart).
 	DoAsteroidColisions(a) {
-		Object.keys(a).forEach((key) => {
-			const key1 = key;
-			Object.keys(a).forEach((key) => {
-				if (key1 !== key) {
-					const e1 = a[key];
-					const e2 = a[key1];
-					if (e1.IsColliding(e2)) {
-						const dx = e2.pos.x - e1.pos.x;
-						const dy = e2.pos.y - e1.pos.y;
-						const nx1 = dx / e1.radius;
-						const ny1 = dy / e1.radius;
-						const nx2 = dx / e2.radius;
-						const ny2 = dy / e2.radius;
-						e1.pos.x = e1.pos.x - nx1;
-						e1.pos.y = e1.pos.y - ny1;
-						e2.pos.x = e2.pos.x + nx2;
-						e2.pos.y = e2.pos.y + ny2;
+		const keys = Object.keys(a);
+		for (let i = 0; i < keys.length; i++) {
+			for (let j = i + 1; j < keys.length; j++) {
+				const e1 = a[keys[i]];
+				const e2 = a[keys[j]];
+				if (e1.IsColliding(e2)) {
+					const dx = e2.pos.x - e1.pos.x;
+					const dy = e2.pos.y - e1.pos.y;
+					const nx1 = dx / e1.radius;
+					const ny1 = dy / e1.radius;
+					const nx2 = dx / e2.radius;
+					const ny2 = dy / e2.radius;
+					e1.pos.x = e1.pos.x - nx1;
+					e1.pos.y = e1.pos.y - ny1;
+					e2.pos.x = e2.pos.x + nx2;
+					e2.pos.y = e2.pos.y + ny2;
 
-						const d = new Vector(dx, dy);
-						d.Div(d.Length());
-						const aci = e1.dir.Dot(d);
-						const bci = e2.dir.Dot(d);
-						const acf = bci;
-						const bcf = aci;
+					const d = new Vector(dx, dy);
+					d.Div(d.Length());
+					const aci = e1.dir.Dot(d);
+					const bci = e2.dir.Dot(d);
+					const acf = bci;
+					const bcf = aci;
 
-						e1.dir.Set((acf - aci) * d.x, (acf - aci) * d.y);
-						e1.dir.Normalize();
-						e2.dir.Set((bcf - bci) * d.x, (bcf - bci) * d.y);
-						e2.dir.Normalize();
-					}
+					e1.dir.Set((acf - aci) * d.x, (acf - aci) * d.y);
+					e1.dir.Normalize();
+					e2.dir.Set((bcf - bci) * d.x, (bcf - bci) * d.y);
+					e2.dir.Normalize();
 				}
-			});
-		});
+			}
+		}
 	}
 }

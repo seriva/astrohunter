@@ -29,11 +29,9 @@ export class Ship extends Entity {
 			rotation = Constants.SHIP_ROTATIONSPEED * frametime;
 		}
 		this.dir.Rotate(rotation);
-		for (let i = 0; i < this.shipPoints.length; i++) {
-			this.shipPoints[i].Rotate(rotation);
-		}
-		for (let i = 0; i < this.flamePoints.length; i++) {
-			this.flamePoints[i].Rotate(rotation);
+		const allPoints = [...this.shipPoints, ...this.flamePoints];
+		for (let i = 0; i < allPoints.length; i++) {
+			allPoints[i].Rotate(rotation);
 		}
 
 		//	Movement

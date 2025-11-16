@@ -2,7 +2,7 @@
 export class Sound {
 	constructor() {
 		this.soundCache = {};
-		this.cachSize = 5;
+		this.cacheSize = 5;
 	}
 
 	// Loads and prepares a sound file.
@@ -18,7 +18,7 @@ export class Sound {
 	// Caches multiple instances of a sound for overlapping playback.
 	CacheSound(id, file, speed, volume) {
 		if (!this.soundCache[`${id}_0`]) {
-			for (let i = 0; i < this.cachSize; i++) {
+			for (let i = 0; i < this.cacheSize; i++) {
 				const sound = this.LoadSound(file, speed, volume);
 				this.soundCache[`${id}_${i}`] = sound;
 			}
@@ -30,8 +30,8 @@ export class Sound {
 		if (this.soundCache[`${id}_0`]) {
 			let itr = 0;
 			while (!this.soundCache[`${id}_${itr}`].paused) {
-				itr = itr + 1;
-				if (itr > this.cachSize - 1) return;
+				itr++;
+				if (itr >= this.cacheSize) return;
 			}
 			this.soundCache[`${id}_${itr}`].play();
 		}

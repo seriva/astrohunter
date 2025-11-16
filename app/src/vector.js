@@ -11,23 +11,23 @@ export class Vector {
 	}
 
 	Add(x, y) {
-		this.x = this.x + x;
-		this.y = this.y + y;
+		this.x += x;
+		this.y += y;
 	}
 
 	Min(x, y) {
-		this.x = this.x - x;
-		this.y = this.y - y;
+		this.x -= x;
+		this.y -= y;
 	}
 
 	Mul(i) {
-		this.x = this.x * i;
-		this.y = this.y * i;
+		this.x *= i;
+		this.y *= i;
 	}
 
 	Div(i) {
-		this.x = this.x / i;
-		this.y = this.y / i;
+		this.x /= i;
+		this.y /= i;
 	}
 
 	Rotate(angle) {
@@ -45,19 +45,15 @@ export class Vector {
 	}
 
 	DistanceTo(v) {
-		let distance = Math.sqrt(
-			(this.x - v.x) * (this.x - v.x) + (this.y - v.y) * (this.y - v.y),
-		);
-		if (distance < 0) {
-			distance = distance * -1;
-		}
-		return distance;
+		const dx = this.x - v.x;
+		const dy = this.y - v.y;
+		return Math.sqrt(dx * dx + dy * dy);
 	}
 
 	Normalize() {
 		const l = 1 / this.Length();
-		this.x = this.x * l;
-		this.y = this.y * l;
+		this.x *= l;
+		this.y *= l;
 	}
 
 	Dot(v) {
@@ -68,10 +64,6 @@ export class Vector {
 		const dot = this.Dot(v);
 		const mag = this.Length() * v.Length();
 		const angle = Math.acos(dot / mag);
-		if (Number.isNaN(angle)) {
-			return 0;
-		} else {
-			return angle;
-		}
+		return Number.isNaN(angle) ? 0 : angle;
 	}
 }

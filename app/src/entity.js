@@ -19,30 +19,25 @@ export class Entity {
 
 	// Checks circular collision with another entity.
 	IsColliding(e) {
-		const pos1 = this.pos;
-		const rad1 = this.radius;
-		const pos2 = e.pos;
-		const rad2 = e.radius;
-		if (
-			pos1.x + rad1 + rad2 > pos2.x &&
-			pos1.x < pos2.x + rad1 + rad2 &&
-			pos1.y + rad1 + rad2 > pos2.y &&
-			pos1.y < pos2.y + rad1 + rad2
-		) {
-			if (pos1.DistanceTo(pos2) < rad1 + rad2) {
-				return true;
-			}
+		const dx = this.pos.x - e.pos.x;
+		const dy = this.pos.y - e.pos.y;
+		const minDist = this.radius + e.radius;
+		// Quick bounding box check first
+		if (Math.abs(dx) > minDist || Math.abs(dy) > minDist) {
+			return false;
 		}
-		return false;
+		// Precise distance check
+		return Math.sqrt(dx * dx + dy * dy) < minDist;
 	}
 
 	// Wraps position around screen edges for seamless scrolling.
 	CapOnScreen(width, height) {
-		const w = width !== undefined ? width : Constants.SCR_WIDTH;
-		const h = height !== undefined ? height : Constants.SCR_HEIGHT;
-		if (this.pos.x < -30) this.pos.x = w + 30;
-		if (this.pos.x > w + 30) this.pos.x = -30;
-		if (this.pos.y < -30) this.pos.y = h + 30;
-		if (this.pos.y > h + 30) this.pos.y = -30;
+		const w = width ?? Constants.SCR_WIDTH;
+		const h = height ?? Constants.SCR_HEIGHT;
+		const margin = 30;
+		if (this.pos.x < -margin) this.pos.x = w + margin;
+		if (this.pos.x > w + margin) this.pos.x = -margin;
+		if (this.pos.y < -margin) this.pos.y = h + margin;
+		if (this.pos.y > h + margin) this.pos.y = -margin;
 	}
 }

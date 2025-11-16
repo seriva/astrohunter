@@ -9,7 +9,7 @@ export class Asteroid extends Entity {
 		this.pos.Set(x, y);
 		this.dir.Set(dirx, diry);
 		this.type = type;
-		this.rotationSpeed = (-0.5 + Math.random(1)) / 5;
+		this.rotationSpeed = (-0.5 + Math.random()) / 5;
 		this.radius = Constants.ASTEROID[type].RADIUS;
 		this.hits = Constants.ASTEROID[type].HITS;
 		this.points = [];

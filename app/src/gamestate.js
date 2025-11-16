@@ -93,59 +93,52 @@ export class GameState extends State {
 
 		//touch Input
 		if (mobileAndTabletcheck()) {
-			this.game.left.addEventListener(
-				"touchstart",
-				(e) => {
+			const setupTouchButton = (button, onStart, onEnd) => {
+				button.addEventListener(
+					"touchstart",
+					(e) => {
+						if (onStart) onStart();
+						button.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+						e.preventDefault();
+					},
+					false,
+				);
+				button.addEventListener(
+					"touchend",
+					(e) => {
+						if (onEnd) onEnd();
+						button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+						e.preventDefault();
+					},
+					false,
+				);
+			};
+			setupTouchButton(
+				this.game.left,
+				() => {
 					this.ship.rotateLeft = true;
-					this.game.left.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-					e.preventDefault();
 				},
-				false,
-			);
-			this.game.left.addEventListener(
-				"touchend",
-				(e) => {
+				() => {
 					this.ship.rotateLeft = false;
-					this.game.left.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-					e.preventDefault();
 				},
-				false,
 			);
-			this.game.right.addEventListener(
-				"touchstart",
-				(e) => {
+			setupTouchButton(
+				this.game.right,
+				() => {
 					this.ship.rotateRight = true;
-					this.game.right.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-					e.preventDefault();
 				},
-				false,
-			);
-			this.game.right.addEventListener(
-				"touchend",
-				(e) => {
+				() => {
 					this.ship.rotateRight = false;
-					this.game.right.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-					e.preventDefault();
 				},
-				false,
 			);
-			this.game.forward.addEventListener(
-				"touchstart",
-				(e) => {
+			setupTouchButton(
+				this.game.forward,
+				() => {
 					this.ship.moveForward = true;
-					this.game.forward.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-					e.preventDefault();
 				},
-				false,
-			);
-			this.game.forward.addEventListener(
-				"touchend",
-				(e) => {
+				() => {
 					this.ship.moveForward = false;
-					this.game.forward.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-					e.preventDefault();
 				},
-				false,
 			);
 			this.game.fire.addEventListener("touchstart", startFire, false);
 			this.game.fire.addEventListener("touchend", endFire, false);
@@ -185,26 +178,26 @@ export class GameState extends State {
 			this.game.canvas.logicalHeight,
 		);
 
-		Object.keys(this.bullets).forEach((key) => {
+		for (const key in this.bullets) {
 			this.bullets[key].Update(
 				this.game.frameTime,
 				this.game.canvas.logicalWidth,
 				this.game.canvas.logicalHeight,
 			);
-		});
+		}
 
-		Object.keys(this.asteroids).forEach((key) => {
+		for (const key in this.asteroids) {
 			this.asteroids[key].Update(
 				this.game.frameTime,
 				null,
 				this.game.canvas.logicalWidth,
 				this.game.canvas.logicalHeight,
 			);
-		});
+		}
 
-		Object.keys(this.explosions).forEach((key) => {
+		for (const key in this.explosions) {
 			this.explosions[key].Update(this.game.frameTime);
-		});
+		}
 
 		this.game.DoAsteroidColisions(this.asteroids);
 		this.DoShipAsteroidColision();
@@ -215,17 +208,17 @@ export class GameState extends State {
 	Draw() {
 		this.ship.Draw(this.game.canvas);
 
-		Object.keys(this.bullets).forEach((key) => {
+		for (const key in this.bullets) {
 			this.bullets[key].Draw(this.game.canvas);
-		});
+		}
 
-		Object.keys(this.asteroids).forEach((key) => {
+		for (const key in this.asteroids) {
 			this.asteroids[key].Draw(this.game.canvas);
-		});
+		}
 
-		Object.keys(this.explosions).forEach((key) => {
+		for (const key in this.explosions) {
 			this.explosions[key].Draw(this.game.canvas);
-		});
+		}
 
 		// Align stats to top-left corner (small margin from edges)
 		const topMargin = 10;
@@ -265,7 +258,7 @@ export class GameState extends State {
 	// Handles collision between ship and asteroids.
 	DoShipAsteroidColision() {
 		if (!this.ship.canBeHit) return;
-		Object.keys(this.asteroids).forEach((key) => {
+		for (const key in this.asteroids) {
 			const a = this.asteroids[key];
 			if (this.ship.IsColliding(a)) {
 				// Explosion
@@ -290,15 +283,15 @@ export class GameState extends State {
 				);
 				return;
 			}
-		});
+		}
 	}
 
 	// Handles collision between bullets and asteroids.
 	DoBulletsAsteroidColision() {
-		Object.keys(this.asteroids).forEach((key) => {
-			const a = this.asteroids[key];
-			Object.keys(this.bullets).forEach((key) => {
-				const b = this.bullets[key];
+		for (const aKey in this.asteroids) {
+			const a = this.asteroids[aKey];
+			for (const bKey in this.bullets) {
+				const b = this.bullets[bKey];
 				if (b.IsColliding(a)) {
 					this.CreateExplosion(b.pos.x, b.pos.y, 10, 100, 0);
 					delete this.bullets[b.id];
@@ -307,8 +300,8 @@ export class GameState extends State {
 						this.BreakupAsteroid(a);
 					}
 				}
-			});
-		});
+			}
+		}
 	}
 
 	// Creates an explosion effect at the given position.
@@ -346,7 +339,7 @@ export class GameState extends State {
 		const pos = a.pos;
 		delete this.asteroids[a.id];
 
-		// Return of its the smallest type
+		// Return if it's the smallest type
 		if (type > 2) {
 			// Start next wave if there are no more asteroids
 			if (Object.keys(this.asteroids).length === 0) {
