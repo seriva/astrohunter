@@ -1,0 +1,6 @@
+{
+    "recommendations": [
+        // For running the vscode devcontainer.
+        "ms-vscode-remote.remote-containers"
+    ]
+}

@@ -42,8 +42,15 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-/platforms/**
-/plugins/cordova-plugin-whitelist/**
-/plugins/cordova-plugin-vibration/**
-/plugins/cordova-plugin-crosswalk-webview/**
-/plugins/android.json
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# microtastic specific
+public/
+app/src/dependencies/
+
+# PWA icon generator (temporary tool)
+app/icons/generate-icons.html

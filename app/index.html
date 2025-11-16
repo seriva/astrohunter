@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+	<meta name="description" content="A classic Asteroids game - Navigate your ship, shoot asteroids, and avoid collisions">
+	<meta name="theme-color" content="#000000">
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<meta name="apple-mobile-web-app-title" content="AstroHunter">
+
+	<title>AstroHunter - Asteroids Game</title>
+
+	<!-- PWA Manifest -->
+	<link rel="manifest" href="manifest.json">
+
+	<!-- Apple Touch Icons -->
+	<link rel="apple-touch-icon" href="icons/icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="48x48" href="icons/icon-48x48.png">
+	<link rel="apple-touch-icon" sizes="72x72" href="icons/icon-72x72.png">
+	<link rel="apple-touch-icon" sizes="96x96" href="icons/icon-96x96.png">
+	<link rel="apple-touch-icon" sizes="144x144" href="icons/icon-144x144.png">
+	<link rel="apple-touch-icon" sizes="192x192" href="icons/icon-192x192.png">
+	<link rel="apple-touch-icon" sizes="512x512" href="icons/icon-512x512.png">
+
+	<!-- Favicon -->
+	<link rel="icon" type="image/x-icon" href="icons/favicon.ico">
+	<link rel="icon" type="image/png" sizes="16x16" href="icons/favicon-16x16.png">
+	<link rel="icon" type="image/png" sizes="32x32" href="icons/favicon-32x32.png">
+	<link rel="icon" type="image/png" sizes="48x48" href="icons/icon-48x48.png">
+	<link rel="icon" type="image/png" sizes="96x96" href="icons/icon-96x96.png">
+	<link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192x192.png">
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" href="css/style.css">
+
+	<!-- Scripts -->
+	<script type="module" src="src/main.js"></script>
+</head>
+<body bgcolor="#000000" >
+	<canvas id="canvas" ></canvas>
+	<div id="forward" class='button forward'> </div>
+	<div id="left" class='button left'> </div>
+	<div id="right" class='button right'> </div>
+	<div id="fire" class='button fire'> </div>
+
+	<script type="module">
+		import { Game } from './src/main.js';
+
+		// Register Service Worker for PWA
+		if ('serviceWorker' in navigator) {
+			window.addEventListener('load', () => {
+				navigator.serviceWorker.register('/sw.js')
+					.then((registration) => {
+						console.log('SW registered: ', registration);
+						
+						// Check for updates
+						registration.addEventListener('updatefound', () => {
+							const newWorker = registration.installing;
+							newWorker.addEventListener('statechange', () => {
+								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
+									// New service worker available
+									if (confirm('New version available! Reload to update?')) {
+										newWorker.postMessage({ action: 'skipWaiting' });
+										window.location.reload();
+									}
+								}
+							});
+						});
+					})
+					.catch((registrationError) => {
+						console.log('SW registration failed: ', registrationError);
+					});
+
+				// Listen for service worker updates
+				let refreshing = false;
+				navigator.serviceWorker.addEventListener('controllerchange', () => {
+					if (!refreshing) {
+						refreshing = true;
+						window.location.reload();
+					}
+				});
+			});
+		}
+
+		// disable scrolling by any of the keys.
+		window.addEventListener("keydown", function(e) {
+					// space and arrow keys
+					if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+							e.preventDefault();
+					}
+		}, false);
+
+		// create, initiate and run game
+		const game = new Game();
+		game.Run();
+	</script>
+</body>
+</html>
