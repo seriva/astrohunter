@@ -1,12 +1,12 @@
-import { State } from './state.js';
-import { Ship } from './ship.js';
-import { Bullet } from './bullet.js';
-import { Asteroid } from './asteroid.js';
-import { Explosion } from './explosion.js';
-import { Vector } from './vector.js';
-import { Constants } from './constants.js';
-import { mobileAndTabletcheck } from './utils.js';
-import { States } from './states.js';
+import { Asteroid } from "./asteroid.js";
+import { Bullet } from "./bullet.js";
+import { Constants } from "./constants.js";
+import { Explosion } from "./explosion.js";
+import { Ship } from "./ship.js";
+import { State } from "./state.js";
+import { States } from "./states.js";
+import { mobileAndTabletcheck } from "./utils.js";
+import { Vector } from "./vector.js";
 
 export class GameState extends State {
 	constructor(game) {
@@ -16,7 +16,11 @@ export class GameState extends State {
 		this.game.ShowControlButtons(true);
 
 		// Vars.
-		this.ship = new Ship("ship", Constants.SCR_WIDTH / 2, Constants.SCR_HEIGHT / 2)
+		this.ship = new Ship(
+			"ship",
+			Constants.SCR_WIDTH / 2,
+			Constants.SCR_HEIGHT / 2,
+		);
 		this.ship.ResetShip(Constants.SCR_WIDTH / 2, Constants.SCR_HEIGHT / 2);
 		this.fireTimer = 0;
 		this.bulletCounter = 0;
@@ -29,79 +33,116 @@ export class GameState extends State {
 
 		// Create the asteroids
 		for (let i = 0; i < this.game.asteroidCount; i++) {
-			const id = 'Asteroid' + this.asteroidCounter;
+			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
-			dir.Rotate(Math.random()*360);
-			this.asteroids[id] = new Asteroid(id, 0, Math.random() * Constants.SCR_WIDTH , Math.random() * Constants.SCR_HEIGHT, dir.x, dir.y )
+			dir.Rotate(Math.random() * 360);
+			this.asteroids[id] = new Asteroid(
+				id,
+				0,
+				Math.random() * Constants.SCR_WIDTH,
+				Math.random() * Constants.SCR_HEIGHT,
+				dir.x,
+				dir.y,
+			);
 			this.asteroidCounter++;
 		}
 
 		// fire functions
 		const startFire = (e) => {
-			if (self.fireTimer === 0){
+			if (self.fireTimer === 0) {
 				const FireBullet = () => {
-					if(self.pause) return;
-					const x = self.ship.pos.x + (self.ship.dir.x * Constants.SHIP_RADIUS );
-					const y = self.ship.pos.y + (self.ship.dir.y * Constants.SHIP_RADIUS );
-					const id = 'Bullet' + self.bulletCounter;
-					self.bullets[id] = new Bullet(id,x, y, self.ship.dir.x, self.ship.dir.y);
-					self.bullets[id].OnDestroy = function() {
+					if (self.pause) return;
+					const x = self.ship.pos.x + self.ship.dir.x * Constants.SHIP_RADIUS;
+					const y = self.ship.pos.y + self.ship.dir.y * Constants.SHIP_RADIUS;
+					const id = `Bullet${self.bulletCounter}`;
+					self.bullets[id] = new Bullet(
+						id,
+						x,
+						y,
+						self.ship.dir.x,
+						self.ship.dir.y,
+					);
+					self.bullets[id].OnDestroy = function () {
 						delete self.bullets[this.id];
 					};
 					self.bulletCounter++;
-					self.game.sound.PlaySound('fire');
-				}
+					self.game.sound.PlaySound("fire");
+				};
 				self.fireTimer = setInterval(() => {
 					FireBullet();
 				}, Constants.BULLET_FIRESPEED);
 				FireBullet();
 			}
-			if (mobileAndTabletcheck()){
+			if (mobileAndTabletcheck()) {
 				self.game.fire.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
 				e.preventDefault();
 			}
-		}
+		};
 		const endFire = (e) => {
 			clearInterval(self.fireTimer);
 			self.fireTimer = 0;
-			if (mobileAndTabletcheck()){
+			if (mobileAndTabletcheck()) {
 				self.game.fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
 				e.preventDefault();
 			}
-		}
+		};
 
 		//touch Input
-		if (mobileAndTabletcheck()){
-			this.game.left.addEventListener("touchstart", (e) => {
-				this.ship.rotateLeft = true;
-				this.game.left.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-				e.preventDefault();
-			}, false);
-			this.game.left.addEventListener("touchend", (e) => {
-				this.ship.rotateLeft = false;
-				this.game.left.style.opacity=Constants.BUTTON_IDOL_OPACITY;
-				e.preventDefault();
-			}, false);
-			this.game.right.addEventListener("touchstart", (e) => {
-				this.ship.rotateRight = true;
-				this.game.right.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-				e.preventDefault();
-			}, false);
-			this.game.right.addEventListener("touchend", (e) => {
-				this.ship.rotateRight = false;
-				this.game.right.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-				e.preventDefault();
-			}, false);
-			this.game.forward.addEventListener("touchstart", (e) => {
-				this.ship.moveForward = true;
-				this.game.forward.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-				e.preventDefault();
-			}, false);
-			this.game.forward.addEventListener("touchend", (e) => {
-				this.ship.moveForward = false;
-				this.game.forward.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-				e.preventDefault();
-			}, false);
+		if (mobileAndTabletcheck()) {
+			this.game.left.addEventListener(
+				"touchstart",
+				(e) => {
+					this.ship.rotateLeft = true;
+					this.game.left.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
+			this.game.left.addEventListener(
+				"touchend",
+				(e) => {
+					this.ship.rotateLeft = false;
+					this.game.left.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
+			this.game.right.addEventListener(
+				"touchstart",
+				(e) => {
+					this.ship.rotateRight = true;
+					this.game.right.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
+			this.game.right.addEventListener(
+				"touchend",
+				(e) => {
+					this.ship.rotateRight = false;
+					this.game.right.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
+			this.game.forward.addEventListener(
+				"touchstart",
+				(e) => {
+					this.ship.moveForward = true;
+					this.game.forward.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
+			this.game.forward.addEventListener(
+				"touchend",
+				(e) => {
+					this.ship.moveForward = false;
+					this.game.forward.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+					e.preventDefault();
+				},
+				false,
+			);
 			this.game.fire.addEventListener("touchstart", startFire, false);
 			this.game.fire.addEventListener("touchend", endFire, false);
 		}
@@ -116,7 +157,7 @@ export class GameState extends State {
 
 	RemoveEvents() {
 		clearInterval(this.fireTimer);
-		if (mobileAndTabletcheck()){
+		if (mobileAndTabletcheck()) {
 			this.game.left.removeEventListener("touchstart");
 			this.game.left.removeEventListener("touchend");
 			this.game.right.removeEventListener("touchstart");
@@ -129,7 +170,7 @@ export class GameState extends State {
 	}
 
 	Update() {
-		if(this.pause) return;
+		if (this.pause) return;
 
 		this.ship.Update(this.game.frameTime, this.game.input);
 
@@ -165,10 +206,10 @@ export class GameState extends State {
 			this.explosions[key].Draw(this.game.canvas);
 		});
 
-		this.game.canvas.DrawText("score : " + this.game.score, 10, 35, 30, "left");
-		this.game.canvas.DrawText("ships : " + this.game.ships, 10, 70, 30, "left");
-		if(this.pause){
-			this.game.canvas.DrawRect(88, 116,725, 250, '#000000', '#ffffff', "3");
+		this.game.canvas.DrawText(`score : ${this.game.score}`, 10, 35, 30, "left");
+		this.game.canvas.DrawText(`ships : ${this.game.ships}`, 10, 70, 30, "left");
+		if (this.pause) {
+			this.game.canvas.DrawRect(88, 116, 725, 250, "#000000", "#ffffff", "3");
 			this.game.canvas.DrawText("pause", 450, 280, 90, "center");
 		}
 	}
@@ -177,17 +218,17 @@ export class GameState extends State {
 		if (!this.ship.canBeHit) return;
 		Object.keys(this.asteroids).forEach((key) => {
 			const a = this.asteroids[key];
-			if (this.ship.IsColliding(a)){
+			if (this.ship.IsColliding(a)) {
 				// Explosion
-				this.CreateExplosion(this.ship.pos.x, this.ship.pos.y, 75, 300, 100)
-				this.game.sound.PlaySound('explosion');
+				this.CreateExplosion(this.ship.pos.x, this.ship.pos.y, 75, 300, 100);
+				this.game.sound.PlaySound("explosion");
 
 				// Break up asteroid
 				this.BreakupAsteroid(a);
 
 				// Check game over
 				this.game.ships--;
-				if  (this.game.ships === 0){
+				if (this.game.ships === 0) {
 					this.RemoveEvents();
 					this.game.SetState(States.GAMEOVER);
 					return;
@@ -205,11 +246,11 @@ export class GameState extends State {
 			const a = this.asteroids[key];
 			Object.keys(this.bullets).forEach((key) => {
 				const b = this.bullets[key];
-				if ( b.IsColliding(a)){
-					this.CreateExplosion(b.pos.x, b.pos.y, 10, 100, 0)
+				if (b.IsColliding(a)) {
+					this.CreateExplosion(b.pos.x, b.pos.y, 10, 100, 0);
 					delete this.bullets[b.id];
 					a.hits--;
-					if (a.hits < 1){
+					if (a.hits < 1) {
 						this.BreakupAsteroid(a);
 					}
 				}
@@ -218,30 +259,42 @@ export class GameState extends State {
 	}
 
 	CreateExplosion(x, y, particlecount, lifetime, vibrate) {
-		const id = 'Explosion' + this.explosionCounter;
-		this.explosions[id] = new Explosion(id, x, y, particlecount, lifetime, vibrate);
-		const self = this;
-		this.explosions[id].OnDestroy = function(){
-			delete self.explosions[id];
-		}
+		const id = `Explosion${this.explosionCounter}`;
+		this.explosions[id] = new Explosion(
+			id,
+			x,
+			y,
+			particlecount,
+			lifetime,
+			vibrate,
+		);
+		this.explosions[id].OnDestroy = () => {
+			delete this.explosions[id];
+		};
 		this.explosionCounter++;
 	}
 
 	BreakupAsteroid(a) {
 		// Explosion
-		this.CreateExplosion(a.pos.x, a.pos.y, (3-a.type)*50, (3-a.type)*120, 50)
-		this.game.sound.PlaySound('explosion');
+		this.CreateExplosion(
+			a.pos.x,
+			a.pos.y,
+			(3 - a.type) * 50,
+			(3 - a.type) * 120,
+			50,
+		);
+		this.game.sound.PlaySound("explosion");
 
 		// Calculate new type and score
 		this.game.score = this.game.score + Constants.ASTEROID[a.type].POINTS;
-		const type = a.type+1;
+		const type = a.type + 1;
 		const pos = a.pos;
 		delete this.asteroids[a.id];
 
 		// Return of its the smallest type
 		if (type > 2) {
 			// Start next wave if there are no more asteroids
-			if (Object.keys(this.asteroids).length === 0){
+			if (Object.keys(this.asteroids).length === 0) {
 				this.RemoveEvents();
 				this.game.SetState(States.NEWWAVE);
 			}
@@ -250,10 +303,17 @@ export class GameState extends State {
 
 		// Spawn 3 new ones if we get here
 		for (let i = 0; i < 3; i++) {
-			const id = 'Asteroid' + this.asteroidCounter;
+			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
-			dir.Rotate(Math.random()*360);
-			this.asteroids[id] = new Asteroid(id, type, pos.x + (-15 + Math.random()*30), pos.y + (-15 + Math.random()*30) , dir.x, dir.y )
+			dir.Rotate(Math.random() * 360);
+			this.asteroids[id] = new Asteroid(
+				id,
+				type,
+				pos.x + (-15 + Math.random() * 30),
+				pos.y + (-15 + Math.random() * 30),
+				dir.x,
+				dir.y,
+			);
 			this.asteroidCounter++;
 		}
 	}

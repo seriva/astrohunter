@@ -3,9 +3,7 @@ export class State {
 		this.game = game;
 	}
 
-	Update() {
-	}	
+	Update() {}
 
-	Draw() {
-	}
-}	
+	Draw() {}
+}

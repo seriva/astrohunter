@@ -42,6 +42,12 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
+# Node.js
+node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
 # microtastic specific
-public
-app/src/dependencies
+public/
+app/src/dependencies/

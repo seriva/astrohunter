@@ -3,5 +3,4 @@ export const States = {
 	GAMEOVER: 1,
 	NEWWAVE: 2,
 	GAME: 3,
-}
-
+};

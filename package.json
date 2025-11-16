@@ -1,0 +1,27 @@
+{
+  "name": "astrohunter",
+  "version": "1.0.0",
+  "description": "Asteroids game built with ES6 modules",
+  "type": "module",
+  "scripts": {
+    "prepare": "husky && microtastic prep",
+    "dependencies": "microtastic prep",
+    "dev": "microtastic dev",
+    "prod": "npm run check && microtastic prod",
+    "format": "biome format --write .",
+    "check": "biome check ."
+  },
+  "keywords": [
+    "game",
+    "asteroids",
+    "canvas",
+    "es6"
+  ],
+  "author": "Luuk van Venrooij",
+  "license": "MIT",
+  "devDependencies": {
+    "@biomejs/biome": "^2.3.5",
+    "husky": "^9.1.7",
+    "microtastic": "^0.0.51"
+  }
+}

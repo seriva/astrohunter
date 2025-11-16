@@ -1,6 +1,6 @@
-import { Entity } from './entity.js';
-import { Constants } from './constants.js';
-import { Vector } from './vector.js';
+import { Constants } from "./constants.js";
+import { Entity } from "./entity.js";
+import { Vector } from "./vector.js";
 
 export class Ship extends Entity {
 	constructor(id, x, y) {
@@ -20,11 +20,11 @@ export class Ship extends Entity {
 	Update(frametime, input) {
 		// Ship rotation
 		let rotation = 0;
-		if (input.IsDown(37) || this.rotateLeft){
-			rotation = -(Constants.SHIP_ROTATIONSPEED*frametime);
+		if (input.IsDown(37) || this.rotateLeft) {
+			rotation = -(Constants.SHIP_ROTATIONSPEED * frametime);
 		}
-		if (input.IsDown(39) || this.rotateRight){
-			rotation = (Constants.SHIP_ROTATIONSPEED*frametime);
+		if (input.IsDown(39) || this.rotateRight) {
+			rotation = Constants.SHIP_ROTATIONSPEED * frametime;
 		}
 		this.dir.Rotate(rotation);
 		for (let i = 0; i < this.shipPoints.length; i++) {
@@ -36,10 +36,13 @@ export class Ship extends Entity {
 
 		//	Movement
 		this.showFlame = false;
-		if (input.IsDown(38) || this.moveForward){
-			this.velocity.Add( this.dir.x * (Constants.SHIP_ACCELERATION*frametime), this.dir.y * (Constants.SHIP_ACCELERATION*frametime))
+		if (input.IsDown(38) || this.moveForward) {
+			this.velocity.Add(
+				this.dir.x * (Constants.SHIP_ACCELERATION * frametime),
+				this.dir.y * (Constants.SHIP_ACCELERATION * frametime),
+			);
 			const length = this.velocity.Length();
-			if (length > Constants.SHIP_MAXVELOCITY){
+			if (length > Constants.SHIP_MAXVELOCITY) {
 				this.velocity.Div(length);
 				this.velocity.Mul(Constants.SHIP_MAXVELOCITY);
 			}
@@ -50,10 +53,10 @@ export class Ship extends Entity {
 	}
 
 	Draw(canvas) {
-		if(!this.isVisible) return;
-		canvas.DrawPolyLine(this.shipPoints, this.pos.x, this.pos.y, 1)
-		if (this.showFlame){
-			canvas.DrawPolyLine(this.flamePoints, this.pos.x, this.pos.y, 1)
+		if (!this.isVisible) return;
+		canvas.DrawPolyLine(this.shipPoints, this.pos.x, this.pos.y, 1);
+		if (this.showFlame) {
+			canvas.DrawPolyLine(this.flamePoints, this.pos.x, this.pos.y, 1);
 		}
 	}
 
@@ -81,19 +84,18 @@ export class Ship extends Entity {
 		this.rotateLeft = false;
 		this.rotateRight = false;
 		this.rotateForward = false;
-		let counter = Constants.SHIP_IMMUME-1;
-		const self = this;
+		let counter = Constants.SHIP_IMMUME - 1;
 		const immumeHitTimer = setInterval(() => {
 			counter--;
-			if (counter === 0){
-				self.canBeHit = true;
-				self.isVisible = true;
+			if (counter === 0) {
+				this.canBeHit = true;
+				this.isVisible = true;
 				clearInterval(immumeHitTimer);
 				clearInterval(blinkTimer);
 			}
-		},1000);
+		}, 1000);
 		const blinkTimer = setInterval(() => {
-			self.isVisible = !self.isVisible;
-		},250);
+			this.isVisible = !this.isVisible;
+		}, 250);
 	}
 }
