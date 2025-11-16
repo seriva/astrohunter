@@ -1,3 +1,4 @@
+// Game constants - all configurable game values (sizes, speeds, points, etc.).
 import { mobileAndTabletcheck } from "./utils.js";
 
 export const Constants = {

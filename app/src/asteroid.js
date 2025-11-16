@@ -1,3 +1,4 @@
+// Asteroid entity - obstacles that move and rotate, break into smaller pieces when hit.
 import { Constants } from "./constants.js";
 import { Entity } from "./entity.js";
 import { Vector } from "./vector.js";
@@ -23,6 +24,7 @@ export class Asteroid extends Entity {
 		}
 	}
 
+	// Updates asteroid position and rotation.
 	Update(frametime, _input, canvasWidth, canvasHeight) {
 		// Update position
 		this.pos.Add(
@@ -37,6 +39,7 @@ export class Asteroid extends Entity {
 		}
 	}
 
+	// Draws the asteroid as a polyline shape.
 	Draw(canvas) {
 		canvas.DrawPolyLine(this.points, this.pos.x, this.pos.y, 1);
 	}

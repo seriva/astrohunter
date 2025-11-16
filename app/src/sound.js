@@ -1,9 +1,11 @@
+// Sound manager - handles audio playback and caching.
 export class Sound {
 	constructor() {
 		this.soundCache = {};
 		this.cachSize = 5;
 	}
 
+	// Loads and prepares a sound file.
 	LoadSound(file, speed, volume) {
 		const sound = new Audio(file);
 		sound.playbackRate = speed;
@@ -13,6 +15,7 @@ export class Sound {
 		return sound;
 	}
 
+	// Caches multiple instances of a sound for overlapping playback.
 	CacheSound(id, file, speed, volume) {
 		if (!this.soundCache[`${id}_0`]) {
 			for (let i = 0; i < this.cachSize; i++) {
@@ -22,6 +25,7 @@ export class Sound {
 		}
 	}
 
+	// Plays a cached sound effect.
 	PlaySound(id) {
 		if (this.soundCache[`${id}_0`]) {
 			let itr = 0;
@@ -33,6 +37,7 @@ export class Sound {
 		}
 	}
 
+	// Plays background music with looping.
 	PlayMusic(file, speed, volume, loop) {
 		const sound = this.LoadSound(file, speed, volume);
 		sound.loop = loop;

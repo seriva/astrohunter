@@ -1,3 +1,4 @@
+// Bullet entity - projectiles fired by the ship.
 import { Constants } from "./constants.js";
 import { Entity } from "./entity.js";
 
@@ -9,6 +10,7 @@ export class Bullet extends Entity {
 		this.radius = Constants.BULLET_RADIUS;
 	}
 
+	// Updates bullet position and removes when lifetime expires.
 	Update(frametime, canvasWidth, canvasHeight) {
 		// Update position
 		this.pos.Add(
@@ -24,6 +26,7 @@ export class Bullet extends Entity {
 		}
 	}
 
+	// Draws the bullet as a small white rectangle.
 	Draw(canvas) {
 		canvas.DrawRect(
 			this.pos.x - 2,

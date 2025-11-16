@@ -10,6 +10,7 @@ import { States } from "./states.js";
 import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
+// Game - main class managing game loop, states, and overall game logic.
 export class Game {
 	constructor() {
 		//create canvas
@@ -155,6 +156,7 @@ export class Game {
 		}
 	}
 
+	// Starts the main game loop.
 	Run() {
 		const GameLoop = (currenttime) => {
 			// Timing
@@ -184,6 +186,7 @@ export class Game {
 		window.requestAnimationFrame(GameLoop);
 	}
 
+	// Switches to a different game state.
 	SetState(state) {
 		this.state = state;
 		delete this.currentState;
@@ -203,6 +206,7 @@ export class Game {
 		}
 	}
 
+	// Shows or hides mobile control buttons.
 	ShowControlButtons(visible) {
 		if (!mobileAndTabletcheck()) return;
 		this.forward.style.opacity = Constants.BUTTON_IDOL_OPACITY;
@@ -222,6 +226,7 @@ export class Game {
 		}
 	}
 
+	// Handles collisions between asteroids (bouncing them apart).
 	DoAsteroidColisions(a) {
 		Object.keys(a).forEach((key) => {
 			const key1 = key;

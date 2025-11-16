@@ -1,6 +1,7 @@
 import { Constants } from "./constants.js";
 import { Vector } from "./vector.js";
 
+// Entity - base class for all game objects with position, collision, and screen wrapping.
 export class Entity {
 	constructor(id) {
 		this.id = id;
@@ -16,6 +17,7 @@ export class Entity {
 
 	OnDestroy() {}
 
+	// Checks circular collision with another entity.
 	IsColliding(e) {
 		const pos1 = this.pos;
 		const rad1 = this.radius;
@@ -34,6 +36,7 @@ export class Entity {
 		return false;
 	}
 
+	// Wraps position around screen edges for seamless scrolling.
 	CapOnScreen(width, height) {
 		const w = width !== undefined ? width : Constants.SCR_WIDTH;
 		const h = height !== undefined ? height : Constants.SCR_HEIGHT;

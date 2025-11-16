@@ -1,3 +1,4 @@
+// NewWaveState - countdown screen between waves.
 import { Constants } from "./constants.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
@@ -19,8 +20,10 @@ export class NewWaveState extends State {
 		}, 1000);
 	}
 
+	// No updates needed for new wave state.
 	Update() {}
 
+	// Draws countdown screen for next wave.
 	Draw() {
 		const centerX = this.game.canvas.logicalWidth / 2;
 		const centerY = this.game.canvas.logicalHeight / 2;

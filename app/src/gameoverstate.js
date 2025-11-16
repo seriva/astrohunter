@@ -1,3 +1,4 @@
+// GameOverState - displays game over screen with final score.
 import { Constants } from "./constants.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
@@ -41,8 +42,10 @@ export class GameOverState extends State {
 		}
 	}
 
+	// No updates needed for game over state.
 	Update() {}
 
+	// Draws game over screen with final score.
 	Draw() {
 		const centerX = this.game.canvas.logicalWidth / 2;
 		const centerY = this.game.canvas.logicalHeight / 2;

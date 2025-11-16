@@ -1,3 +1,4 @@
+// Ship entity - player controlled spaceship with rotation and movement.
 import { Constants } from "./constants.js";
 import { Entity } from "./entity.js";
 import { Vector } from "./vector.js";
@@ -17,6 +18,7 @@ export class Ship extends Entity {
 		this.moveForward = false;
 	}
 
+	// Updates ship rotation, movement, and position based on input.
 	Update(frametime, input, canvasWidth, canvasHeight) {
 		// Ship rotation
 		let rotation = 0;
@@ -52,6 +54,7 @@ export class Ship extends Entity {
 		this.CapOnScreen(canvasWidth, canvasHeight);
 	}
 
+	// Draws the ship and flame effect.
 	Draw(canvas) {
 		if (!this.isVisible) return;
 		canvas.DrawPolyLine(this.shipPoints, this.pos.x, this.pos.y, 1);
@@ -60,6 +63,7 @@ export class Ship extends Entity {
 		}
 	}
 
+	// Defines the ship and flame shape points.
 	SetPoints() {
 		this.shipPoints = [];
 		this.shipPoints.push(new Vector(0, -18));
@@ -75,6 +79,7 @@ export class Ship extends Entity {
 		this.flamePoints.push(new Vector(0, 19));
 	}
 
+	// Resets ship to position with invincibility period and blinking effect.
 	ResetShip(x, y) {
 		this.pos.Set(x, y);
 		this.dir.Set(0, -1);

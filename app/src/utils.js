@@ -1,4 +1,5 @@
-// check for tablet and phone
+// Utility functions - mobile detection and event management helpers.
+// Detects if the device is a mobile or tablet.
 export function mobileAndTabletcheck() {
 	let check = false;
 	((a) => {

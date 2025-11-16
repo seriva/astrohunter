@@ -1,3 +1,4 @@
+// Vector - 2D math operations for positions, directions, and calculations.
 export class Vector {
 	constructor(x, y) {
 		this.x = x;

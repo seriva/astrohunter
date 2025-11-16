@@ -1,3 +1,4 @@
+// Canvas - handles all rendering with dynamic scaling to fill screen.
 export class Canvas {
 	constructor(id, width, height) {
 		this.element = document.getElementById(id);
@@ -17,6 +18,7 @@ export class Canvas {
 		this.context.canvas.height = height;
 	}
 
+	// Resizes canvas to fill screen, adjusting logical dimensions to match aspect ratio.
 	Resize() {
 		const newWidth = window.innerWidth;
 		const newHeight = window.innerHeight;
@@ -56,6 +58,7 @@ export class Canvas {
 		this.element.style.marginLeft = `${-this.width / 2}px`;
 	}
 
+	// Draws text with automatic scaling.
 	DrawText(t, x, y, s, a) {
 		this.context.fillStyle = "#ffffff";
 		this.context.textAlign = a;
@@ -66,6 +69,7 @@ export class Canvas {
 		this.context.fillText(t, x * this.scaleX, y * this.scaleX);
 	}
 
+	// Draws a rectangle with optional stroke.
 	DrawRect(x, y, w, h, fs, ss, lw) {
 		this.context.beginPath();
 		this.context.fillStyle = fs;
@@ -84,6 +88,7 @@ export class Canvas {
 		}
 	}
 
+	// Draws a polyline - used for ships, asteroids, and vector graphics.
 	DrawPolyLine(data, x, y, s) {
 		this.context.strokeStyle = "#ffffff";
 		this.context.lineWidth = 2 * this.scaleX;

@@ -1,3 +1,4 @@
+// Explosion entity - particle effects for collisions and destruction.
 import { Constants } from "./constants.js";
 import { Entity } from "./entity.js";
 import { mobileAndTabletcheck } from "./utils.js";
@@ -26,6 +27,7 @@ export class Explosion extends Entity {
 		}
 	}
 
+	// Updates explosion particles and removes when lifetime expires.
 	Update(frametime) {
 		// Animate particles
 		for (let i = 0; i < this.points.length; i++) {
@@ -42,6 +44,7 @@ export class Explosion extends Entity {
 		}
 	}
 
+	// Draws explosion particles as small white rectangles.
 	Draw(canvas) {
 		for (let i = 0; i < this.points.length; i++) {
 			canvas.DrawRect(

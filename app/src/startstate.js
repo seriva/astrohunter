@@ -1,3 +1,4 @@
+// StartState - title screen with animated asteroids and start prompt.
 import { Asteroid } from "./asteroid.js";
 import { Constants } from "./constants.js";
 import { State } from "./state.js";
@@ -56,6 +57,7 @@ export class StartState extends State {
 		}
 	}
 
+	// Updates asteroids and handles their collisions.
 	Update() {
 		Object.keys(this.asteroids).forEach((key) => {
 			this.asteroids[key].Update(
@@ -68,6 +70,7 @@ export class StartState extends State {
 		this.game.DoAsteroidColisions(this.asteroids);
 	}
 
+	// Draws asteroids and title screen UI.
 	Draw() {
 		Object.keys(this.asteroids).forEach((key) => {
 			this.asteroids[key].Draw(this.game.canvas);

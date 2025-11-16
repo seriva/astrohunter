@@ -1,3 +1,4 @@
+// Game state constants - defines all possible game states.
 export const States = {
 	START: 0,
 	GAMEOVER: 1,

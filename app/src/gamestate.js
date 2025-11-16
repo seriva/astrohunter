@@ -1,3 +1,4 @@
+// GameState - main gameplay state with ship, asteroids, bullets, and collisions.
 import { Asteroid } from "./asteroid.js";
 import { Bullet } from "./bullet.js";
 import { Constants } from "./constants.js";
@@ -158,6 +159,7 @@ export class GameState extends State {
 		});
 	}
 
+	// Removes all event listeners when leaving this state.
 	RemoveEvents() {
 		clearInterval(this.fireTimer);
 		if (mobileAndTabletcheck()) {
@@ -172,6 +174,7 @@ export class GameState extends State {
 		}
 	}
 
+	// Updates all game entities and handles collisions.
 	Update() {
 		if (this.pause) return;
 
@@ -208,6 +211,7 @@ export class GameState extends State {
 		this.DoBulletsAsteroidColision();
 	}
 
+	// Draws all game entities and UI elements.
 	Draw() {
 		this.ship.Draw(this.game.canvas);
 
@@ -258,6 +262,7 @@ export class GameState extends State {
 		}
 	}
 
+	// Handles collision between ship and asteroids.
 	DoShipAsteroidColision() {
 		if (!this.ship.canBeHit) return;
 		Object.keys(this.asteroids).forEach((key) => {
@@ -288,6 +293,7 @@ export class GameState extends State {
 		});
 	}
 
+	// Handles collision between bullets and asteroids.
 	DoBulletsAsteroidColision() {
 		Object.keys(this.asteroids).forEach((key) => {
 			const a = this.asteroids[key];
@@ -305,6 +311,7 @@ export class GameState extends State {
 		});
 	}
 
+	// Creates an explosion effect at the given position.
 	CreateExplosion(x, y, particlecount, lifetime, vibrate) {
 		const id = `Explosion${this.explosionCounter}`;
 		this.explosions[id] = new Explosion(
@@ -321,6 +328,7 @@ export class GameState extends State {
 		this.explosionCounter++;
 	}
 
+	// Breaks an asteroid into smaller pieces and awards points.
 	BreakupAsteroid(a) {
 		// Explosion
 		this.CreateExplosion(
