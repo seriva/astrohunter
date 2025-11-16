@@ -18,7 +18,7 @@ export class Explosion extends Entity {
 				0,
 				1 * (Math.random() * Constants.EXPLOSION_ACCELERATION),
 			);
-			dir.Rotate(Math.random() * 360);
+			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			this.dirs.push(dir);
 		}
 

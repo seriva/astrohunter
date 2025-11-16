@@ -1,6 +1,6 @@
 // StartState - title screen with animated asteroids and start prompt.
 import { Asteroid } from "./asteroid.js";
-import { Constants } from "./constants.js";
+import { Constants, Keys } from "./constants.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
 import { mobileAndTabletcheck } from "./utils.js";
@@ -17,12 +17,12 @@ export class StartState extends State {
 		this.game.ShowControlButtons(false);
 
 		this.asteroids = {};
-		for (let i = 0; i < 20; i++) {
+		for (let i = 0; i < Constants.ASTEROID_START_SCREEN_COUNT; i++) {
 			const dir = new Vector(0, 1);
-			dir.Rotate(Math.random() * 360);
+			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			this.asteroids[i] = new Asteroid(
 				i,
-				Math.floor(Math.random() * 3),
+				Math.floor(Math.random() * (Constants.MATH.MAX_ASTEROID_TYPE + 1)),
 				Math.random() * this.game.canvas.logicalWidth,
 				Math.random() * this.game.canvas.logicalHeight,
 				dir.x,
@@ -33,7 +33,7 @@ export class StartState extends State {
 		this.showPressSpace = true;
 		this.showPressSpaceTimer = setInterval(() => {
 			this.showPressSpace = !this.showPressSpace;
-		}, 800);
+		}, Constants.TIMERS.PRESS_SPACE_BLINK);
 
 		const continueGame = (e) => {
 			clearInterval(this.showPressSpace);
@@ -47,7 +47,7 @@ export class StartState extends State {
 				e.preventDefault();
 			}
 		};
-		this.game.input.AddKeyDownEvent(32, continueGame);
+		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
 		if (mobileAndTabletcheck()) {
 			this.game.canvas.element.addEventListener(
 				"touchend",
@@ -77,28 +77,18 @@ export class StartState extends State {
 		}
 		const centerX = this.game.canvas.logicalWidth / 2;
 		const centerY = this.game.canvas.logicalHeight / 2;
-		const boxWidth = Math.min(725, this.game.canvas.logicalWidth * 0.8);
-		const boxHeight = Math.min(250, this.game.canvas.logicalHeight * 0.5);
-		this.game.canvas.DrawRect(
-			centerX - boxWidth / 2,
-			centerY - boxHeight / 2,
-			boxWidth,
-			boxHeight,
-			"#000000",
-			"#ffffff",
-			"3",
-		);
+		this.game.canvas.DrawUIBox(centerX, centerY, "", 0);
 		this.game.canvas.DrawText(
 			"astrohunter",
 			centerX,
-			centerY - 60,
+			centerY + Constants.TEXT_OFFSET.TOP,
 			80,
 			"center",
 		);
 		this.game.canvas.DrawText(
 			`highscore : ${this.game.highscore}`,
 			centerX,
-			centerY,
+			centerY + Constants.TEXT_OFFSET.CENTER,
 			40,
 			"center",
 		);
@@ -106,7 +96,7 @@ export class StartState extends State {
 			this.game.canvas.DrawText(
 				Constants.START_TEXT,
 				centerX,
-				centerY + 60,
+				centerY + Constants.TEXT_OFFSET.BOTTOM,
 				40,
 				"center",
 			);

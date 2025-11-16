@@ -1,7 +1,7 @@
 // GameState - main gameplay state with ship, asteroids, bullets, and collisions.
 import { Asteroid } from "./asteroid.js";
 import { Bullet } from "./bullet.js";
-import { Constants } from "./constants.js";
+import { Constants, Keys } from "./constants.js";
 import { Explosion } from "./explosion.js";
 import { Ship } from "./ship.js";
 import { State } from "./state.js";
@@ -39,7 +39,7 @@ export class GameState extends State {
 		for (let i = 0; i < this.game.asteroidCount; i++) {
 			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
-			dir.Rotate(Math.random() * 360);
+			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			this.asteroids[id] = new Asteroid(
 				id,
 				0,
@@ -92,25 +92,24 @@ export class GameState extends State {
 		};
 
 		//touch Input
+		this.touchListeners = [];
 		if (mobileAndTabletcheck()) {
 			const setupTouchButton = (button, onStart, onEnd) => {
-				button.addEventListener(
-					"touchstart",
-					(e) => {
-						if (onStart) onStart();
-						button.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
-						e.preventDefault();
-					},
-					false,
-				);
-				button.addEventListener(
-					"touchend",
-					(e) => {
-						if (onEnd) onEnd();
-						button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-						e.preventDefault();
-					},
-					false,
+				const startHandler = (e) => {
+					if (onStart) onStart();
+					button.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+					e.preventDefault();
+				};
+				const endHandler = (e) => {
+					if (onEnd) onEnd();
+					button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+					e.preventDefault();
+				};
+				button.addEventListener("touchstart", startHandler, false);
+				button.addEventListener("touchend", endHandler, false);
+				this.touchListeners.push(
+					{ button, type: "touchstart", handler: startHandler },
+					{ button, type: "touchend", handler: endHandler },
 				);
 			};
 			setupTouchButton(
@@ -142,28 +141,30 @@ export class GameState extends State {
 			);
 			this.game.fire.addEventListener("touchstart", startFire, false);
 			this.game.fire.addEventListener("touchend", endFire, false);
+			this.touchListeners.push(
+				{ button: this.game.fire, type: "touchstart", handler: startFire },
+				{ button: this.game.fire, type: "touchend", handler: endFire },
+			);
 		}
 
 		// Key input events
-		this.game.input.AddKeyDownEvent(32, startFire);
-		this.game.input.AddKeyUpEvent(32, endFire);
-		this.game.input.AddKeyDownEvent(80, () => {
+		this.game.input.AddKeyDownEvent(Keys.SPACE, startFire);
+		this.game.input.AddKeyUpEvent(Keys.SPACE, endFire);
+		const togglePause = () => {
 			this.pause = !this.pause;
-		});
+		};
+		this.game.input.AddKeyDownEvent(Keys.P, togglePause);
+		this.game.input.AddKeyDownEvent(Keys.ESCAPE, togglePause);
 	}
 
 	// Removes all event listeners when leaving this state.
 	RemoveEvents() {
 		clearInterval(this.fireTimer);
-		if (mobileAndTabletcheck()) {
-			this.game.left.removeEventListener("touchstart");
-			this.game.left.removeEventListener("touchend");
-			this.game.right.removeEventListener("touchstart");
-			this.game.right.removeEventListener("touchend");
-			this.game.forward.removeEventListener("touchstart");
-			this.game.forward.removeEventListener("touchend");
-			this.game.fire.removeEventListener("touchstart");
-			this.game.fire.removeEventListener("touchend");
+		if (this.touchListeners) {
+			this.touchListeners.forEach(({ button, type, handler }) => {
+				button.removeEventListener(type, handler, false);
+			});
+			this.touchListeners = [];
 		}
 	}
 
@@ -221,37 +222,24 @@ export class GameState extends State {
 		}
 
 		// Align stats to top-left corner (small margin from edges)
-		const topMargin = 10;
-		const lineHeight = 35;
 		this.game.canvas.DrawText(
 			`score : ${this.game.score}`,
-			10,
-			topMargin,
-			30,
+			Constants.UI.TOP_MARGIN,
+			Constants.UI.TOP_MARGIN,
+			Constants.UI.TEXT_SIZE,
 			"left",
 		);
 		this.game.canvas.DrawText(
 			`ships : ${this.game.ships}`,
-			10,
-			topMargin + lineHeight,
-			30,
+			Constants.UI.TOP_MARGIN,
+			Constants.UI.TOP_MARGIN + Constants.UI.LINE_HEIGHT,
+			Constants.UI.TEXT_SIZE,
 			"left",
 		);
 		if (this.pause) {
 			const centerX = this.game.canvas.logicalWidth / 2;
 			const centerY = this.game.canvas.logicalHeight / 2;
-			const boxWidth = Math.min(725, this.game.canvas.logicalWidth * 0.8);
-			const boxHeight = Math.min(250, this.game.canvas.logicalHeight * 0.5);
-			this.game.canvas.DrawRect(
-				centerX - boxWidth / 2,
-				centerY - boxHeight / 2,
-				boxWidth,
-				boxHeight,
-				"#000000",
-				"#ffffff",
-				"3",
-			);
-			this.game.canvas.DrawText("pause", centerX, centerY, 90, "center");
+			this.game.canvas.DrawUIBox(centerX, centerY, "pause", 90);
 		}
 	}
 
@@ -262,7 +250,13 @@ export class GameState extends State {
 			const a = this.asteroids[key];
 			if (this.ship.IsColliding(a)) {
 				// Explosion
-				this.CreateExplosion(this.ship.pos.x, this.ship.pos.y, 75, 300, 100);
+				this.CreateExplosion(
+					this.ship.pos.x,
+					this.ship.pos.y,
+					Constants.EXPLOSION.SHIP.particles,
+					Constants.EXPLOSION.SHIP.lifetime,
+					Constants.EXPLOSION.SHIP.vibrate,
+				);
 				this.game.sound.PlaySound("explosion");
 
 				// Break up asteroid
@@ -293,7 +287,13 @@ export class GameState extends State {
 			for (const bKey in this.bullets) {
 				const b = this.bullets[bKey];
 				if (b.IsColliding(a)) {
-					this.CreateExplosion(b.pos.x, b.pos.y, 10, 100, 0);
+					this.CreateExplosion(
+						b.pos.x,
+						b.pos.y,
+						Constants.EXPLOSION.BULLET.particles,
+						Constants.EXPLOSION.BULLET.lifetime,
+						Constants.EXPLOSION.BULLET.vibrate,
+					);
 					delete this.bullets[b.id];
 					a.hits--;
 					if (a.hits < 1) {
@@ -324,23 +324,24 @@ export class GameState extends State {
 	// Breaks an asteroid into smaller pieces and awards points.
 	BreakupAsteroid(a) {
 		// Explosion
+		const typeDiff = Constants.MATH.MAX_ASTEROID_TYPE - a.type;
 		this.CreateExplosion(
 			a.pos.x,
 			a.pos.y,
-			(3 - a.type) * 50,
-			(3 - a.type) * 120,
-			50,
+			typeDiff * Constants.EXPLOSION.ASTEROID_MULTIPLIER.particles,
+			typeDiff * Constants.EXPLOSION.ASTEROID_MULTIPLIER.lifetime,
+			Constants.EXPLOSION.ASTEROID_MULTIPLIER.vibrate,
 		);
 		this.game.sound.PlaySound("explosion");
 
 		// Calculate new type and score
-		this.game.score = this.game.score + Constants.ASTEROID[a.type].POINTS;
+		this.game.score += Constants.ASTEROID[a.type].POINTS;
 		const type = a.type + 1;
 		const pos = a.pos;
 		delete this.asteroids[a.id];
 
 		// Return if it's the smallest type
-		if (type > 2) {
+		if (type > Constants.MATH.MAX_ASTEROID_TYPE) {
 			// Start next wave if there are no more asteroids
 			if (Object.keys(this.asteroids).length === 0) {
 				this.RemoveEvents();
@@ -349,16 +350,20 @@ export class GameState extends State {
 			return;
 		}
 
-		// Spawn 3 new ones if we get here
-		for (let i = 0; i < 3; i++) {
+		// Spawn new asteroids
+		for (let i = 0; i < Constants.ASTEROID_SPAWN_COUNT; i++) {
 			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
-			dir.Rotate(Math.random() * 360);
+			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			this.asteroids[id] = new Asteroid(
 				id,
 				type,
-				pos.x + (-15 + Math.random() * 30),
-				pos.y + (-15 + Math.random() * 30),
+				pos.x +
+					(Constants.ASTEROID_SPAWN_OFFSET_MIN +
+						Math.random() * Constants.ASTEROID_SPAWN_OFFSET_MAX),
+				pos.y +
+					(Constants.ASTEROID_SPAWN_OFFSET_MIN +
+						Math.random() * Constants.ASTEROID_SPAWN_OFFSET_MAX),
 				dir.x,
 				dir.y,
 			);

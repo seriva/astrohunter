@@ -1,5 +1,5 @@
 // Ship entity - player controlled spaceship with rotation and movement.
-import { Constants } from "./constants.js";
+import { Constants, Keys } from "./constants.js";
 import { Entity } from "./entity.js";
 import { Vector } from "./vector.js";
 
@@ -22,10 +22,10 @@ export class Ship extends Entity {
 	Update(frametime, input, canvasWidth, canvasHeight) {
 		// Ship rotation
 		let rotation = 0;
-		if (input.IsDown(37) || this.rotateLeft) {
+		if (input.IsDown(Keys.LEFT) || this.rotateLeft) {
 			rotation = -(Constants.SHIP_ROTATIONSPEED * frametime);
 		}
-		if (input.IsDown(39) || this.rotateRight) {
+		if (input.IsDown(Keys.RIGHT) || this.rotateRight) {
 			rotation = Constants.SHIP_ROTATIONSPEED * frametime;
 		}
 		this.dir.Rotate(rotation);
@@ -36,7 +36,7 @@ export class Ship extends Entity {
 
 		//	Movement
 		this.showFlame = false;
-		if (input.IsDown(38) || this.moveForward) {
+		if (input.IsDown(Keys.UP) || this.moveForward) {
 			this.velocity.Add(
 				this.dir.x * (Constants.SHIP_ACCELERATION * frametime),
 				this.dir.y * (Constants.SHIP_ACCELERATION * frametime),
@@ -86,7 +86,6 @@ export class Ship extends Entity {
 		this.canBeHit = false;
 		this.rotateLeft = false;
 		this.rotateRight = false;
-		this.rotateForward = false;
 		let counter = Constants.SHIP_IMMUME - 1;
 		const immumeHitTimer = setInterval(() => {
 			counter--;
@@ -96,9 +95,9 @@ export class Ship extends Entity {
 				clearInterval(immumeHitTimer);
 				clearInterval(blinkTimer);
 			}
-		}, 1000);
+		}, Constants.TIMERS.IMMUNE_INTERVAL);
 		const blinkTimer = setInterval(() => {
 			this.isVisible = !this.isVisible;
-		}, 250);
+		}, Constants.TIMERS.BLINK_INTERVAL);
 	}
 }

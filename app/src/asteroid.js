@@ -13,7 +13,8 @@ export class Asteroid extends Entity {
 		this.radius = Constants.ASTEROID[type].RADIUS;
 		this.hits = Constants.ASTEROID[type].HITS;
 		this.points = [];
-		const step = 360 / Constants.ASTEROID[type].POINTCOUNT;
+		const step =
+			Constants.MATH.FULL_CIRCLE_DEG / Constants.ASTEROID[type].POINTCOUNT;
 		for (let i = 0; i < Constants.ASTEROID[type].POINTCOUNT; i++) {
 			let size =
 				Constants.ASTEROID[type].RADIUS - Constants.ASTEROID[type].RADIUS * 0.1;

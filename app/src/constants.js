@@ -1,6 +1,16 @@
 // Game constants - all configurable game values (sizes, speeds, points, etc.).
 import { mobileAndTabletcheck } from "./utils.js";
 
+// Key code constants
+export const Keys = {
+	SPACE: 32,
+	LEFT: 37,
+	UP: 38,
+	RIGHT: 39,
+	P: 80,
+	ESCAPE: 27,
+};
+
 export const Constants = {
 	SCR_WIDTH: 1100,
 	SCR_HEIGHT: 620,
@@ -24,6 +34,11 @@ export const Constants = {
 
 	EXPLOSION_ACCELERATION: 0.5,
 	EXPLOSION_PART_RADIUS: 2.0,
+	EXPLOSION: {
+		SHIP: { particles: 75, lifetime: 300, vibrate: 100 },
+		BULLET: { particles: 10, lifetime: 100, vibrate: 0 },
+		ASTEROID_MULTIPLIER: { particles: 50, lifetime: 120 },
+	},
 
 	ASTEROID: [
 		{
@@ -48,6 +63,45 @@ export const Constants = {
 			POINTS: 250,
 		},
 	],
+	ASTEROID_SPAWN_COUNT: 3,
+	ASTEROID_SPAWN_OFFSET_MIN: -15,
+	ASTEROID_SPAWN_OFFSET_MAX: 30,
+	ASTEROID_START_SCREEN_COUNT: 20,
+
+	UI: {
+		TOP_MARGIN: 10,
+		LINE_HEIGHT: 35,
+		TEXT_SIZE: 30,
+		BOX_WIDTH_MAX: 725,
+		BOX_WIDTH_RATIO: 0.8,
+		BOX_HEIGHT_MAX: 250,
+		BOX_HEIGHT_RATIO: 0.5,
+		BOX_STROKE_WIDTH: 3,
+		BUTTON_MARGIN: 5,
+		BUTTON_SPACING: 10,
+	},
+	TEXT_OFFSET: {
+		TOP: -60,
+		CENTER: 0,
+		BOTTOM: 60,
+		SMALL_OFFSET: -30,
+		SMALL_OFFSET_POS: 30,
+	},
+
+	TIMERS: {
+		RESIZE_THROTTLE: 100,
+		ORIENTATION_DELAY: 200,
+		BLINK_INTERVAL: 250,
+		IMMUNE_INTERVAL: 1000,
+		WAVE_COUNTDOWN: 1000,
+		PRESS_SPACE_BLINK: 800,
+	},
+
+	MATH: {
+		FULL_CIRCLE_DEG: 360,
+		MAX_ASTEROID_TYPE: 2,
+		FRAME_TIME_MAX: 100,
+	},
 
 	START_TEXT: "hit space to start game",
 	CONTINUE_TEXT: "hit space to continue",

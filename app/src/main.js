@@ -60,24 +60,29 @@ export class Game {
 				const size = Math.round(
 					(Constants.MOB_BUTTON_SIZE * width) / this.canvas.logicalWidth,
 				);
-				setButtons(this.left, size, left + 5, top + (height - 2 * size) - 10);
+				setButtons(
+					this.left,
+					size,
+					left + Constants.UI.BUTTON_MARGIN,
+					top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
+				);
 				setButtons(
 					this.right,
 					size,
-					left + size + 5,
-					top + (height - size) - 10,
+					left + size + Constants.UI.BUTTON_MARGIN,
+					top + (height - size) - Constants.UI.BUTTON_SPACING,
 				);
 				setButtons(
 					this.forward,
 					size,
-					left + (width - (size + 10)),
-					top + (height - 2 * size) - 10,
+					left + (width - (size + Constants.UI.BUTTON_SPACING)),
+					top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
 				);
 				setButtons(
 					this.fire,
 					size,
-					left + (width - (size * 2 + 10)),
-					top + (height - size) - 10,
+					left + (width - (size * 2 + Constants.UI.BUTTON_SPACING)),
+					top + (height - size) - Constants.UI.BUTTON_SPACING,
 				);
 			}
 		};
@@ -90,7 +95,7 @@ export class Game {
 			resizeTimeout = setTimeout(() => {
 				this.canvas.Resize();
 				PlaceAndSizeButtons();
-			}, 100);
+			}, Constants.TIMERS.RESIZE_THROTTLE);
 		};
 
 		// Handle window resize
@@ -104,7 +109,7 @@ export class Game {
 				setTimeout(() => {
 					this.canvas.Resize();
 					PlaceAndSizeButtons();
-				}, 200);
+				}, Constants.TIMERS.ORIENTATION_DELAY);
 			},
 			false,
 		);
@@ -117,16 +122,17 @@ export class Game {
 
 		//Vars
 		this.state = States.START;
-		this.time;
+		this.time = undefined;
 		this.currentState = null;
 		this.frameTime = 0;
 		this.score = 0;
 		this.ships = Constants.SHIPS;
 		this.asteroidCount = Constants.WAVE_START;
 
-		//Get highscore.
-		this.highscore = localStorage.highscore;
-		if (this.highscore === undefined) {
+		//Get highscore with error handling
+		try {
+			this.highscore = parseInt(localStorage.highscore, 10) || 0;
+		} catch (_e) {
 			this.highscore = 0;
 		}
 
@@ -163,7 +169,10 @@ export class Game {
 		const GameLoop = (currenttime) => {
 			// Timing
 			const now = currenttime;
-			this.frameTime = now - (this.time || now);
+			this.frameTime = Math.min(
+				now - (this.time || now),
+				Constants.MATH.FRAME_TIME_MAX,
+			);
 			this.time = now;
 
 			// Run the current state

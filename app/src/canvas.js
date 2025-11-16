@@ -1,7 +1,12 @@
 // Canvas - handles all rendering with dynamic scaling to fill screen.
+import { Constants } from "./constants.js";
+
 export class Canvas {
 	constructor(id, width, height) {
 		this.element = document.getElementById(id);
+		if (!this.element) {
+			throw new Error(`Canvas element with id "${id}" not found`);
+		}
 		this.context = this.element.getContext("2d");
 		// Base logical dimensions (used as reference for area calculation)
 		this.baseLogicalWidth = width;
@@ -108,5 +113,27 @@ export class Canvas {
 			(y + data[0].y * s) * this.scaleX,
 		);
 		this.context.stroke();
+	}
+
+	// Draws a UI box with centered text - used for pause, game over, etc.
+	DrawUIBox(centerX, centerY, text, fontSize, textOffsetY = 0) {
+		const boxWidth = Math.min(
+			Constants.UI.BOX_WIDTH_MAX,
+			this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO,
+		);
+		const boxHeight = Math.min(
+			Constants.UI.BOX_HEIGHT_MAX,
+			this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO,
+		);
+		this.DrawRect(
+			centerX - boxWidth / 2,
+			centerY - boxHeight / 2,
+			boxWidth,
+			boxHeight,
+			"#000000",
+			"#ffffff",
+			Constants.UI.BOX_STROKE_WIDTH.toString(),
+		);
+		this.DrawText(text, centerX, centerY + textOffsetY, fontSize, "center");
 	}
 }

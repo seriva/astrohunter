@@ -1,4 +1,6 @@
 // Vector - 2D math operations for positions, directions, and calculations.
+const DEG_TO_RAD = Math.PI / 180;
+
 export class Vector {
 	constructor(x, y) {
 		this.x = x;
@@ -31,7 +33,7 @@ export class Vector {
 	}
 
 	Rotate(angle) {
-		const rangle = angle * (Math.PI / 180);
+		const rangle = angle * DEG_TO_RAD;
 		const sin = Math.sin(rangle);
 		const cos = Math.cos(rangle);
 		const nx = this.x * cos - this.y * sin;
