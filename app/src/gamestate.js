@@ -35,9 +35,9 @@ export class GameState extends State {
 		const canvasWidth = this.game.canvas.logicalWidth;
 		const canvasHeight = this.game.canvas.logicalHeight;
 		for (let i = 0; i < this.game.asteroidCount; i++) {
-			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
+			const id = `Asteroid${this.asteroidCounter++}`;
 			this.asteroids[id] = new Asteroid(
 				id,
 				0,
@@ -46,7 +46,6 @@ export class GameState extends State {
 				dir.x,
 				dir.y,
 			);
-			this.asteroidCounter++;
 			this.asteroidCount++;
 		}
 
@@ -177,18 +176,11 @@ export class GameState extends State {
 		const frameTime = this.game.frameTime;
 
 		this.ship.Update(frameTime, this.game.input, canvasWidth, canvasHeight);
-
-		for (const key in this.bullets) {
+		for (const key in this.bullets)
 			this.bullets[key].Update(frameTime, canvasWidth, canvasHeight);
-		}
-
-		for (const key in this.asteroids) {
+		for (const key in this.asteroids)
 			this.asteroids[key].Update(frameTime, null, canvasWidth, canvasHeight);
-		}
-
-		for (const key in this.explosions) {
-			this.explosions[key].Update(frameTime);
-		}
+		for (const key in this.explosions) this.explosions[key].Update(frameTime);
 
 		this.game.DoAsteroidColisions(this.asteroids);
 		this.DoShipAsteroidColision();
@@ -198,42 +190,35 @@ export class GameState extends State {
 	// Draws all game entities and UI elements.
 	Draw() {
 		this.ship.Draw(this.game.canvas);
-
-		for (const key in this.bullets) {
-			this.bullets[key].Draw(this.game.canvas);
-		}
-
-		for (const key in this.asteroids) {
+		for (const key in this.bullets) this.bullets[key].Draw(this.game.canvas);
+		for (const key in this.asteroids)
 			this.asteroids[key].Draw(this.game.canvas);
-		}
-
-		for (const key in this.explosions) {
+		for (const key in this.explosions)
 			this.explosions[key].Draw(this.game.canvas);
-		}
 
-		// Align stats to top-left corner (small margin from edges)
+		// Align stats to top-left corner
+		const margin = Constants.UI.TOP_MARGIN;
 		this.game.canvas.DrawText(
 			`score : ${this.game.score}`,
-			Constants.UI.TOP_MARGIN,
-			Constants.UI.TOP_MARGIN,
+			margin,
+			margin,
 			Constants.UI.TEXT_SIZE,
 			"left",
 		);
 		this.game.canvas.DrawText(
 			`ships : ${this.game.ships}`,
-			Constants.UI.TOP_MARGIN,
-			Constants.UI.TOP_MARGIN + Constants.UI.LINE_HEIGHT,
+			margin,
+			margin + Constants.UI.LINE_HEIGHT,
 			Constants.UI.TEXT_SIZE,
 			"left",
 		);
-		if (this.pause) {
+		if (this.pause)
 			this.game.canvas.DrawUIBox(
 				this.game.canvas.GetCenterX(),
 				this.game.canvas.GetCenterY(),
 				"pause",
 				90,
 			);
-		}
 	}
 
 	// Handles collision between ship and asteroids.
@@ -241,35 +226,26 @@ export class GameState extends State {
 		if (!this.ship.canBeHit) return;
 		for (const key in this.asteroids) {
 			const a = this.asteroids[key];
-			if (this.ship.IsColliding(a)) {
-				// Explosion
-				this.CreateExplosion(
-					this.ship.pos.x,
-					this.ship.pos.y,
-					Constants.EXPLOSION.SHIP.particles,
-					Constants.EXPLOSION.SHIP.lifetime,
-					Constants.EXPLOSION.SHIP.vibrate,
-				);
-				this.game.sound.PlaySound("explosion");
-
-				// Break up asteroid
-				this.BreakupAsteroid(a);
-
-				// Check game over
-				this.game.ships--;
-				if (this.game.ships === 0) {
-					this.RemoveEvents();
-					this.game.SetState(States.GAMEOVER);
-					return;
-				}
-
-				// Reset the ship
-				this.ship.ResetShip(
-					this.game.canvas.GetCenterX(),
-					this.game.canvas.GetCenterY(),
-				);
+			if (!a || !this.ship.IsColliding(a)) continue;
+			this.CreateExplosion(
+				this.ship.pos.x,
+				this.ship.pos.y,
+				Constants.EXPLOSION.SHIP.particles,
+				Constants.EXPLOSION.SHIP.lifetime,
+				Constants.EXPLOSION.SHIP.vibrate,
+			);
+			this.game.sound.PlaySound("explosion");
+			this.BreakupAsteroid(a);
+			if (--this.game.ships === 0) {
+				this.RemoveEvents();
+				this.game.SetState(States.GAMEOVER);
 				return;
 			}
+			this.ship.ResetShip(
+				this.game.canvas.GetCenterX(),
+				this.game.canvas.GetCenterY(),
+			);
+			return;
 		}
 	}
 
@@ -277,22 +253,19 @@ export class GameState extends State {
 	DoBulletsAsteroidColision() {
 		for (const aKey in this.asteroids) {
 			const a = this.asteroids[aKey];
+			if (!a) continue;
 			for (const bKey in this.bullets) {
 				const b = this.bullets[bKey];
-				if (b.IsColliding(a)) {
-					this.CreateExplosion(
-						b.pos.x,
-						b.pos.y,
-						Constants.EXPLOSION.BULLET.particles,
-						Constants.EXPLOSION.BULLET.lifetime,
-						Constants.EXPLOSION.BULLET.vibrate,
-					);
-					delete this.bullets[b.id];
-					a.hits--;
-					if (a.hits < 1) {
-						this.BreakupAsteroid(a);
-					}
-				}
+				if (!b || !b.IsColliding(a)) continue;
+				this.CreateExplosion(
+					b.pos.x,
+					b.pos.y,
+					Constants.EXPLOSION.BULLET.particles,
+					Constants.EXPLOSION.BULLET.lifetime,
+					Constants.EXPLOSION.BULLET.vibrate,
+				);
+				delete this.bullets[b.id];
+				if (--a.hits < 1) this.BreakupAsteroid(a);
 			}
 		}
 	}
@@ -316,7 +289,6 @@ export class GameState extends State {
 
 	// Breaks an asteroid into smaller pieces and awards points.
 	BreakupAsteroid(a) {
-		// Explosion
 		const typeDiff = Constants.MATH.MAX_ASTEROID_TYPE - a.type;
 		this.CreateExplosion(
 			a.pos.x,
@@ -326,42 +298,33 @@ export class GameState extends State {
 			Constants.EXPLOSION.ASTEROID_MULTIPLIER.vibrate,
 		);
 		this.game.sound.PlaySound("explosion");
-
-		// Calculate new type and score
 		this.game.score += Constants.ASTEROID[a.type].POINTS;
 		const type = a.type + 1;
 		const pos = a.pos;
 		delete this.asteroids[a.id];
-		this.asteroidCount--;
-
-		// Return if it's the smallest type
-		if (type > Constants.MATH.MAX_ASTEROID_TYPE) {
-			// Start next wave if there are no more asteroids
-			if (this.asteroidCount === 0) {
-				this.RemoveEvents();
-				this.game.SetState(States.NEWWAVE);
-			}
+		if (--this.asteroidCount === 0 && type > Constants.MATH.MAX_ASTEROID_TYPE) {
+			this.RemoveEvents();
+			this.game.SetState(States.NEWWAVE);
 			return;
 		}
+		if (type > Constants.MATH.MAX_ASTEROID_TYPE) return;
 
 		// Spawn new asteroids
 		for (let i = 0; i < Constants.ASTEROID_SPAWN_COUNT; i++) {
-			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
+			const offset =
+				Constants.ASTEROID_SPAWN_OFFSET_MIN +
+				Math.random() * Constants.ASTEROID_SPAWN_OFFSET_MAX;
+			const id = `Asteroid${this.asteroidCounter++}`;
 			this.asteroids[id] = new Asteroid(
 				id,
 				type,
-				pos.x +
-					(Constants.ASTEROID_SPAWN_OFFSET_MIN +
-						Math.random() * Constants.ASTEROID_SPAWN_OFFSET_MAX),
-				pos.y +
-					(Constants.ASTEROID_SPAWN_OFFSET_MIN +
-						Math.random() * Constants.ASTEROID_SPAWN_OFFSET_MAX),
+				pos.x + offset,
+				pos.y + offset,
 				dir.x,
 				dir.y,
 			);
-			this.asteroidCounter++;
 			this.asteroidCount++;
 		}
 	}

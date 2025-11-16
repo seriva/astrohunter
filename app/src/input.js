@@ -9,18 +9,8 @@ export class Input {
 			(event) => {
 				const keyCode = event.keyCode;
 				delete this.pressed[keyCode];
-				// Execute matching up events
-				for (let i = 0; i < this.upevents.length; i++) {
-					if (this.upevents[i].key === keyCode) {
-						this.upevents[i].event();
-					}
-				}
-				// Reset pressed state for down events
-				for (let i = 0; i < this.downevents.length; i++) {
-					if (this.downevents[i].pressed) {
-						this.downevents[i].pressed = false;
-					}
-				}
+				for (const e of this.upevents) if (e.key === keyCode) e.event();
+				for (const e of this.downevents) if (e.pressed) e.pressed = false;
 			},
 			false,
 		);
@@ -29,11 +19,10 @@ export class Input {
 			(event) => {
 				const keyCode = event.keyCode;
 				this.pressed[keyCode] = true;
-				for (let i = 0; i < this.downevents.length; i++) {
-					const downEvent = this.downevents[i];
-					if (downEvent.key === keyCode && !downEvent.pressed) {
-						downEvent.event();
-						downEvent.pressed = true;
+				for (const e of this.downevents) {
+					if (e.key === keyCode && !e.pressed) {
+						e.event();
+						e.pressed = true;
 					}
 				}
 			},

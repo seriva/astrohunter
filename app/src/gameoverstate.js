@@ -83,7 +83,7 @@ export class GameOverState extends State {
 			"center",
 			false,
 		);
-		if (this.showPressSpace) {
+		if (this.showPressSpace)
 			this.game.canvas.DrawText(
 				Constants.CONTINUE_TEXT,
 				centerX,
@@ -92,6 +92,5 @@ export class GameOverState extends State {
 				"center",
 				false,
 			);
-		}
 	}
 }

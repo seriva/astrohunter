@@ -61,22 +61,20 @@ export class StartState extends State {
 
 	// Updates asteroids and handles their collisions.
 	Update() {
-		for (const key in this.asteroids) {
+		for (const key in this.asteroids)
 			this.asteroids[key].Update(
 				this.game.frameTime,
 				null,
 				this.game.canvas.logicalWidth,
 				this.game.canvas.logicalHeight,
 			);
-		}
 		this.game.DoAsteroidColisions(this.asteroids);
 	}
 
 	// Draws asteroids and title screen UI.
 	Draw() {
-		for (const key in this.asteroids) {
+		for (const key in this.asteroids)
 			this.asteroids[key].Draw(this.game.canvas);
-		}
 		const centerX = this.game.canvas.GetCenterX();
 		const centerY = this.game.canvas.GetCenterY();
 		const boxDims = this.game.canvas.GetUIBoxDimensions();
@@ -109,7 +107,7 @@ export class StartState extends State {
 			"center",
 			false,
 		);
-		if (this.showPressSpace) {
+		if (this.showPressSpace)
 			this.game.canvas.DrawText(
 				Constants.START_TEXT,
 				centerX,
@@ -118,6 +116,5 @@ export class StartState extends State {
 				"center",
 				false,
 			);
-		}
 	}
 }
