@@ -7,12 +7,15 @@ export class Input {
 		window.addEventListener(
 			"keyup",
 			(event) => {
-				delete this.pressed[event.keyCode];
+				const keyCode = event.keyCode;
+				delete this.pressed[keyCode];
+				// Execute matching up events
 				for (let i = 0; i < this.upevents.length; i++) {
-					if (this.upevents[i].key === event.keyCode) {
+					if (this.upevents[i].key === keyCode) {
 						this.upevents[i].event();
 					}
 				}
+				// Reset pressed state for down events
 				for (let i = 0; i < this.downevents.length; i++) {
 					if (this.downevents[i].pressed) {
 						this.downevents[i].pressed = false;
@@ -24,14 +27,13 @@ export class Input {
 		window.addEventListener(
 			"keydown",
 			(event) => {
-				this.pressed[event.keyCode] = true;
+				const keyCode = event.keyCode;
+				this.pressed[keyCode] = true;
 				for (let i = 0; i < this.downevents.length; i++) {
-					if (
-						this.downevents[i].key === event.keyCode &&
-						!this.downevents[i].pressed
-					) {
-						this.downevents[i].event();
-						this.downevents[i].pressed = true;
+					const downEvent = this.downevents[i];
+					if (downEvent.key === keyCode && !downEvent.pressed) {
+						downEvent.event();
+						downEvent.pressed = true;
 					}
 				}
 			},

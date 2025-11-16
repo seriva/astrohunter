@@ -17,15 +17,10 @@ export class GameState extends State {
 		this.game.ShowControlButtons(true);
 
 		// Vars.
-		this.ship = new Ship(
-			"ship",
-			this.game.canvas.logicalWidth / 2,
-			this.game.canvas.logicalHeight / 2,
-		);
-		this.ship.ResetShip(
-			this.game.canvas.logicalWidth / 2,
-			this.game.canvas.logicalHeight / 2,
-		);
+		const centerX = this.game.canvas.GetCenterX();
+		const centerY = this.game.canvas.GetCenterY();
+		this.ship = new Ship("ship", centerX, centerY);
+		this.ship.ResetShip(centerX, centerY);
 		this.fireTimer = 0;
 		this.bulletCounter = 0;
 		this.bullets = {};
@@ -34,8 +29,11 @@ export class GameState extends State {
 		this.explosionCounter = 0;
 		this.explosions = {};
 		this.pause = false;
+		this.asteroidCount = 0; // Track count to avoid Object.keys().length
 
 		// Create the asteroids
+		const canvasWidth = this.game.canvas.logicalWidth;
+		const canvasHeight = this.game.canvas.logicalHeight;
 		for (let i = 0; i < this.game.asteroidCount; i++) {
 			const id = `Asteroid${this.asteroidCounter}`;
 			const dir = new Vector(0, 1);
@@ -43,12 +41,13 @@ export class GameState extends State {
 			this.asteroids[id] = new Asteroid(
 				id,
 				0,
-				Math.random() * this.game.canvas.logicalWidth,
-				Math.random() * this.game.canvas.logicalHeight,
+				Math.random() * canvasWidth,
+				Math.random() * canvasHeight,
 				dir.x,
 				dir.y,
 			);
 			this.asteroidCounter++;
+			this.asteroidCount++;
 		}
 
 		// fire functions
@@ -172,32 +171,23 @@ export class GameState extends State {
 	Update() {
 		if (this.pause) return;
 
-		this.ship.Update(
-			this.game.frameTime,
-			this.game.input,
-			this.game.canvas.logicalWidth,
-			this.game.canvas.logicalHeight,
-		);
+		// Cache canvas dimensions to avoid repeated property access
+		const canvasWidth = this.game.canvas.logicalWidth;
+		const canvasHeight = this.game.canvas.logicalHeight;
+		const frameTime = this.game.frameTime;
+
+		this.ship.Update(frameTime, this.game.input, canvasWidth, canvasHeight);
 
 		for (const key in this.bullets) {
-			this.bullets[key].Update(
-				this.game.frameTime,
-				this.game.canvas.logicalWidth,
-				this.game.canvas.logicalHeight,
-			);
+			this.bullets[key].Update(frameTime, canvasWidth, canvasHeight);
 		}
 
 		for (const key in this.asteroids) {
-			this.asteroids[key].Update(
-				this.game.frameTime,
-				null,
-				this.game.canvas.logicalWidth,
-				this.game.canvas.logicalHeight,
-			);
+			this.asteroids[key].Update(frameTime, null, canvasWidth, canvasHeight);
 		}
 
 		for (const key in this.explosions) {
-			this.explosions[key].Update(this.game.frameTime);
+			this.explosions[key].Update(frameTime);
 		}
 
 		this.game.DoAsteroidColisions(this.asteroids);
@@ -275,8 +265,8 @@ export class GameState extends State {
 
 				// Reset the ship
 				this.ship.ResetShip(
-					this.game.canvas.logicalWidth / 2,
-					this.game.canvas.logicalHeight / 2,
+					this.game.canvas.GetCenterX(),
+					this.game.canvas.GetCenterY(),
 				);
 				return;
 			}
@@ -342,11 +332,12 @@ export class GameState extends State {
 		const type = a.type + 1;
 		const pos = a.pos;
 		delete this.asteroids[a.id];
+		this.asteroidCount--;
 
 		// Return if it's the smallest type
 		if (type > Constants.MATH.MAX_ASTEROID_TYPE) {
 			// Start next wave if there are no more asteroids
-			if (Object.keys(this.asteroids).length === 0) {
+			if (this.asteroidCount === 0) {
 				this.RemoveEvents();
 				this.game.SetState(States.NEWWAVE);
 			}
@@ -371,6 +362,7 @@ export class GameState extends State {
 				dir.y,
 			);
 			this.asteroidCounter++;
+			this.asteroidCount++;
 		}
 	}
 }

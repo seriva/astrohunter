@@ -76,14 +76,22 @@ export class Canvas {
 	}
 
 	// Calculates font size that fits within a box of given dimensions.
-	GetFontSizeForBox(_boxWidth, boxHeight, baseFontSize, padding = 0.15) {
+	GetFontSizeForBox(boxWidth, boxHeight, baseFontSize, padding = 0.15) {
+		const availableWidth = boxWidth * (1 - padding * 2);
 		const availableHeight = boxHeight * (1 - padding * 2);
-		const heightBasedSize = availableHeight * 0.22; // ~22% of height for good fit
+		// Calculate size based on height (primary constraint for vertical text)
+		const heightBasedSize = availableHeight * 0.22;
+		// Also consider width to prevent text from being too wide
+		// Estimate: average character width is about 0.6 * font size
+		const widthBasedSize = (availableWidth / 20) * 0.6; // Rough estimate for ~20 chars
+		// Use the smaller constraint to ensure text fits both dimensions
+		const boxConstrainedSize = Math.min(heightBasedSize, widthBasedSize);
+		// Scale base size to current screen
 		const responsiveSize = this.GetResponsiveFontSize(baseFontSize);
-		// Use smaller constraint, but ensure minimum 60% of responsive size
+		// Use smaller of box constraint or responsive size, but ensure minimum readability
 		return Math.max(
-			Math.min(heightBasedSize, responsiveSize),
-			responsiveSize * 0.6,
+			Math.min(boxConstrainedSize, responsiveSize),
+			responsiveSize * 0.5,
 		);
 	}
 
@@ -93,17 +101,23 @@ export class Canvas {
 		return boxDims.height / Constants.UI.BOX_HEIGHT_MAX;
 	}
 
-	// Gets the UI box dimensions (useful for calculating text positions).
+	// Gets the UI box dimensions scaled to screen size.
 	GetUIBoxDimensions() {
-		const responsiveBoxWidth = Math.min(
-			Constants.UI.BOX_WIDTH_MAX * (this.width / this.baseLogicalWidth),
-			this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO,
+		// Scale based on the smaller dimension to maintain aspect ratio
+		const scaleFactor = Math.min(
+			this.width / this.baseLogicalWidth,
+			this.height / this.baseLogicalHeight,
 		);
-		const responsiveBoxHeight = Math.min(
-			Constants.UI.BOX_HEIGHT_MAX * (this.height / this.baseLogicalHeight),
-			this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO,
-		);
-		return { width: responsiveBoxWidth, height: responsiveBoxHeight };
+		// Calculate base dimensions scaled to screen
+		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * scaleFactor;
+		const scaledHeight = Constants.UI.BOX_HEIGHT_MAX * scaleFactor;
+		// Ensure box doesn't exceed logical dimensions (with some margin)
+		const maxWidth = this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO;
+		const maxHeight = this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO;
+		return {
+			width: Math.min(scaledWidth, maxWidth),
+			height: Math.min(scaledHeight, maxHeight),
+		};
 	}
 
 	// Gets the center X coordinate of the canvas.

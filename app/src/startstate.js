@@ -17,14 +17,16 @@ export class StartState extends State {
 		this.game.ShowControlButtons(false);
 
 		this.asteroids = {};
+		const canvasWidth = this.game.canvas.logicalWidth;
+		const canvasHeight = this.game.canvas.logicalHeight;
 		for (let i = 0; i < Constants.ASTEROID_START_SCREEN_COUNT; i++) {
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			this.asteroids[i] = new Asteroid(
 				i,
 				Math.floor(Math.random() * (Constants.MATH.MAX_ASTEROID_TYPE + 1)),
-				Math.random() * this.game.canvas.logicalWidth,
-				Math.random() * this.game.canvas.logicalHeight,
+				Math.random() * canvasWidth,
+				Math.random() * canvasHeight,
 				dir.x,
 				dir.y,
 			);

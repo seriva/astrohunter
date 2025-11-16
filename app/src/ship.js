@@ -13,6 +13,8 @@ export class Ship extends Entity {
 		this.canBeHit = false;
 		this.showFlame = false;
 		this.SetPoints();
+		// Cache combined points array to avoid recreating every frame
+		this.allPoints = [...this.shipPoints, ...this.flamePoints];
 		this.rotateLeft = false;
 		this.rotateRight = false;
 		this.moveForward = false;
@@ -29,9 +31,8 @@ export class Ship extends Entity {
 			rotation = Constants.SHIP_ROTATIONSPEED * frametime;
 		}
 		this.dir.Rotate(rotation);
-		const allPoints = [...this.shipPoints, ...this.flamePoints];
-		for (let i = 0; i < allPoints.length; i++) {
-			allPoints[i].Rotate(rotation);
+		for (let i = 0; i < this.allPoints.length; i++) {
+			this.allPoints[i].Rotate(rotation);
 		}
 
 		//	Movement
@@ -43,8 +44,8 @@ export class Ship extends Entity {
 			);
 			const length = this.velocity.Length();
 			if (length > Constants.SHIP_MAXVELOCITY) {
-				this.velocity.Div(length);
-				this.velocity.Mul(Constants.SHIP_MAXVELOCITY);
+				// Normalize and scale in one operation
+				this.velocity.Mul(Constants.SHIP_MAXVELOCITY / length);
 			}
 			this.showFlame = true;
 		}
@@ -83,6 +84,8 @@ export class Ship extends Entity {
 		this.dir.Set(0, -1);
 		this.velocity.Set(0, 0);
 		this.SetPoints();
+		// Rebuild cached points array
+		this.allPoints = [...this.shipPoints, ...this.flamePoints];
 		this.canBeHit = false;
 		this.rotateLeft = false;
 		this.rotateRight = false;

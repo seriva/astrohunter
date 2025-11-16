@@ -26,13 +26,13 @@ export class Game {
 		if (document.readyState === "loading") {
 			window.addEventListener("DOMContentLoaded", () => {
 				this.canvas.Resize();
-				PlaceAndSizeButtons();
+				this.PlaceAndSizeButtons();
 			});
 		} else {
 			// Page already loaded, do an immediate resize
 			setTimeout(() => {
 				this.canvas.Resize();
-				PlaceAndSizeButtons();
+				this.PlaceAndSizeButtons();
 			}, 0);
 		}
 
@@ -43,50 +43,8 @@ export class Game {
 		this.right = document.getElementById("right");
 		this.fire = document.getElementById("fire");
 
-		// Helper function to place and size mobile buttons
-		const PlaceAndSizeButtons = () => {
-			if (mobileAndTabletcheck()) {
-				const setButtons = (button, size, x, y) => {
-					button.style.left = `${Math.round(x)}px`;
-					button.style.top = `${Math.round(y)}px`;
-					button.style.height = `${Math.round(size)}px`;
-					button.style.width = `${Math.round(size)}px`;
-					button.style.borderRadius = `${Math.round(size / 2)}px`;
-				};
-				const left = this.canvas.element.offsetLeft;
-				const top = this.canvas.element.offsetTop;
-				const height = this.canvas.element.clientHeight;
-				const width = this.canvas.element.clientWidth;
-				const size = Math.round(
-					(Constants.MOB_BUTTON_SIZE * width) / this.canvas.logicalWidth,
-				);
-				setButtons(
-					this.left,
-					size,
-					left + Constants.UI.BUTTON_MARGIN,
-					top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
-				);
-				setButtons(
-					this.right,
-					size,
-					left + size + Constants.UI.BUTTON_MARGIN,
-					top + (height - size) - Constants.UI.BUTTON_SPACING,
-				);
-				setButtons(
-					this.forward,
-					size,
-					left + (width - (size + Constants.UI.BUTTON_SPACING)),
-					top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
-				);
-				setButtons(
-					this.fire,
-					size,
-					left + (width - (size * 2 + Constants.UI.BUTTON_SPACING)),
-					top + (height - size) - Constants.UI.BUTTON_SPACING,
-				);
-			}
-		};
-		PlaceAndSizeButtons();
+		// Initial button placement
+		this.PlaceAndSizeButtons();
 
 		// Throttle resize handler for better performance
 		let resizeTimeout;
@@ -94,7 +52,7 @@ export class Game {
 			clearTimeout(resizeTimeout);
 			resizeTimeout = setTimeout(() => {
 				this.canvas.Resize();
-				PlaceAndSizeButtons();
+				this.PlaceAndSizeButtons();
 			}, Constants.TIMERS.RESIZE_THROTTLE);
 		};
 
@@ -108,7 +66,7 @@ export class Game {
 				// Delay to allow orientation change to complete
 				setTimeout(() => {
 					this.canvas.Resize();
-					PlaceAndSizeButtons();
+					this.PlaceAndSizeButtons();
 				}, Constants.TIMERS.ORIENTATION_DELAY);
 			},
 			false,
@@ -217,6 +175,49 @@ export class Game {
 		}
 	}
 
+	// Places and sizes mobile control buttons.
+	PlaceAndSizeButtons() {
+		if (!mobileAndTabletcheck()) return;
+		const setButtons = (button, size, x, y) => {
+			button.style.left = `${Math.round(x)}px`;
+			button.style.top = `${Math.round(y)}px`;
+			button.style.height = `${Math.round(size)}px`;
+			button.style.width = `${Math.round(size)}px`;
+			button.style.borderRadius = `${Math.round(size / 2)}px`;
+		};
+		const left = this.canvas.element.offsetLeft;
+		const top = this.canvas.element.offsetTop;
+		const height = this.canvas.element.clientHeight;
+		const width = this.canvas.element.clientWidth;
+		const size = Math.round(
+			(Constants.MOB_BUTTON_SIZE * width) / this.canvas.logicalWidth,
+		);
+		setButtons(
+			this.left,
+			size,
+			left + Constants.UI.BUTTON_MARGIN,
+			top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
+		);
+		setButtons(
+			this.right,
+			size,
+			left + size + Constants.UI.BUTTON_MARGIN,
+			top + (height - size) - Constants.UI.BUTTON_SPACING,
+		);
+		setButtons(
+			this.forward,
+			size,
+			left + (width - (size + Constants.UI.BUTTON_SPACING)),
+			top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
+		);
+		setButtons(
+			this.fire,
+			size,
+			left + (width - (size * 2 + Constants.UI.BUTTON_SPACING)),
+			top + (height - size) - Constants.UI.BUTTON_SPACING,
+		);
+	}
+
 	// Shows or hides mobile control buttons.
 	ShowControlButtons(visible) {
 		if (!mobileAndTabletcheck()) return;
@@ -237,17 +238,26 @@ export class Game {
 				if (e1.IsColliding(e2)) {
 					const dx = e2.pos.x - e1.pos.x;
 					const dy = e2.pos.y - e1.pos.y;
-					const nx1 = dx / e1.radius;
-					const ny1 = dy / e1.radius;
-					const nx2 = dx / e2.radius;
-					const ny2 = dy / e2.radius;
-					e1.pos.x = e1.pos.x - nx1;
-					e1.pos.y = e1.pos.y - ny1;
-					e2.pos.x = e2.pos.x + nx2;
-					e2.pos.y = e2.pos.y + ny2;
+					const distSq = dx * dx + dy * dy;
+					// Handle case where asteroids are on top of each other
+					const dist = distSq < 0.01 ? 0.1 : Math.sqrt(distSq);
+					const minDist = e1.radius + e2.radius;
+					const overlap = minDist - dist;
 
-					const d = new Vector(dx, dy);
-					d.Div(d.Length());
+					// Only separate if they're overlapping
+					if (overlap > 0) {
+						const nx = dx / dist;
+						const ny = dy / dist;
+						// Push apart by overlap amount plus a small extra to prevent sticking
+						const pushAmount = (overlap + 1) * 0.5;
+						e1.pos.x -= nx * pushAmount;
+						e1.pos.y -= ny * pushAmount;
+						e2.pos.x += nx * pushAmount;
+						e2.pos.y += ny * pushAmount;
+					}
+
+					// Swap velocities for elastic collision
+					const d = new Vector(dx / dist, dy / dist);
 					const aci = e1.dir.Dot(d);
 					const bci = e2.dir.Dot(d);
 					const acf = bci;
