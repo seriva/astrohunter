@@ -22,8 +22,8 @@ export class StartState extends State {
 			this.asteroids[i] = new Asteroid(
 				i,
 				Math.floor(Math.random() * 3),
-				Math.random() * Constants.SCR_WIDTH,
-				Math.random() * Constants.SCR_HEIGHT,
+				Math.random() * this.game.canvas.width,
+				Math.random() * this.game.canvas.height,
 				dir.x,
 				dir.y,
 			);
@@ -58,7 +58,12 @@ export class StartState extends State {
 
 	Update() {
 		Object.keys(this.asteroids).forEach((key) => {
-			this.asteroids[key].Update(this.game.frameTime);
+			this.asteroids[key].Update(
+				this.game.frameTime,
+				null,
+				this.game.canvas.width,
+				this.game.canvas.height,
+			);
 		});
 		this.game.DoAsteroidColisions(this.asteroids);
 	}
@@ -67,17 +72,41 @@ export class StartState extends State {
 		Object.keys(this.asteroids).forEach((key) => {
 			this.asteroids[key].Draw(this.game.canvas);
 		});
-		this.game.canvas.DrawRect(88, 116, 725, 250, "#000000", "#ffffff", "3");
-		this.game.canvas.DrawText("astrohunter", 450, 210, 80, "center");
+		const centerX = this.game.canvas.width / 2;
+		const centerY = this.game.canvas.height / 2;
+		const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
+		const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+		this.game.canvas.DrawRect(
+			centerX - boxWidth / 2,
+			centerY - boxHeight / 2,
+			boxWidth,
+			boxHeight,
+			"#000000",
+			"#ffffff",
+			"3",
+		);
+		this.game.canvas.DrawText(
+			"astrohunter",
+			centerX,
+			centerY - 60,
+			80,
+			"center",
+		);
 		this.game.canvas.DrawText(
 			`highscore : ${this.game.highscore}`,
-			450,
-			276,
+			centerX,
+			centerY,
 			40,
 			"center",
 		);
 		if (this.showPressSpace) {
-			this.game.canvas.DrawText(Constants.START_TEXT, 450, 342, 40, "center");
+			this.game.canvas.DrawText(
+				Constants.START_TEXT,
+				centerX,
+				centerY + 60,
+				40,
+				"center",
+			);
 		}
 	}
 }

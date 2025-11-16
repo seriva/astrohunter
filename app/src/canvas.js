@@ -2,26 +2,27 @@ export class Canvas {
 	constructor(id, width, height) {
 		this.element = document.getElementById(id);
 		this.context = this.element.getContext("2d");
+		this.width = width;
+		this.height = height;
 		this.context.canvas.width = width;
 		this.context.canvas.height = height;
 	}
 
 	Resize() {
-		const widthToHeight = 16 / 9;
-		let newWidth = window.innerWidth;
-		let newHeight = window.innerHeight;
-		const newWidthToHeight = newWidth / newHeight;
+		const newWidth = window.innerWidth;
+		const newHeight = window.innerHeight;
 
-		if (newWidthToHeight > widthToHeight) {
-			newWidth = Math.round(newHeight * widthToHeight);
-			this.element.style.height = `${newHeight}px`;
-			this.element.style.width = `${newWidth}px`;
-		} else {
-			newHeight = Math.round(newWidth / widthToHeight);
-			this.element.style.width = `${newWidth}px`;
-			this.element.style.height = `${newHeight}px`;
-		}
+		// Update canvas internal dimensions to match display size
+		this.width = newWidth;
+		this.height = newHeight;
+		this.context.canvas.width = newWidth;
+		this.context.canvas.height = newHeight;
 
+		// Update CSS size to fill the window
+		this.element.style.width = `${newWidth}px`;
+		this.element.style.height = `${newHeight}px`;
+
+		// Center the canvas
 		this.element.style.marginTop = `${-newHeight / 2}px`;
 		this.element.style.marginLeft = `${-newWidth / 2}px`;
 	}
@@ -29,6 +30,8 @@ export class Canvas {
 	DrawText(t, x, y, s, a) {
 		this.context.fillStyle = "#ffffff";
 		this.context.textAlign = a;
+		// Use "top" baseline for left/right aligned text, "middle" for center-aligned
+		this.context.textBaseline = a === "center" ? "middle" : "top";
 		this.context.font = `bold ${s}px GameFont`;
 		this.context.fillText(t, x, y);
 	}

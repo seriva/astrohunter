@@ -18,10 +18,13 @@ export class GameState extends State {
 		// Vars.
 		this.ship = new Ship(
 			"ship",
-			Constants.SCR_WIDTH / 2,
-			Constants.SCR_HEIGHT / 2,
+			this.game.canvas.width / 2,
+			this.game.canvas.height / 2,
 		);
-		this.ship.ResetShip(Constants.SCR_WIDTH / 2, Constants.SCR_HEIGHT / 2);
+		this.ship.ResetShip(
+			this.game.canvas.width / 2,
+			this.game.canvas.height / 2,
+		);
 		this.fireTimer = 0;
 		this.bulletCounter = 0;
 		this.bullets = {};
@@ -39,8 +42,8 @@ export class GameState extends State {
 			this.asteroids[id] = new Asteroid(
 				id,
 				0,
-				Math.random() * Constants.SCR_WIDTH,
-				Math.random() * Constants.SCR_HEIGHT,
+				Math.random() * this.game.canvas.width,
+				Math.random() * this.game.canvas.height,
 				dir.x,
 				dir.y,
 			);
@@ -172,14 +175,28 @@ export class GameState extends State {
 	Update() {
 		if (this.pause) return;
 
-		this.ship.Update(this.game.frameTime, this.game.input);
+		this.ship.Update(
+			this.game.frameTime,
+			this.game.input,
+			this.game.canvas.width,
+			this.game.canvas.height,
+		);
 
 		Object.keys(this.bullets).forEach((key) => {
-			this.bullets[key].Update(this.game.frameTime);
+			this.bullets[key].Update(
+				this.game.frameTime,
+				this.game.canvas.width,
+				this.game.canvas.height,
+			);
 		});
 
 		Object.keys(this.asteroids).forEach((key) => {
-			this.asteroids[key].Update(this.game.frameTime);
+			this.asteroids[key].Update(
+				this.game.frameTime,
+				null,
+				this.game.canvas.width,
+				this.game.canvas.height,
+			);
 		});
 
 		Object.keys(this.explosions).forEach((key) => {
@@ -206,11 +223,38 @@ export class GameState extends State {
 			this.explosions[key].Draw(this.game.canvas);
 		});
 
-		this.game.canvas.DrawText(`score : ${this.game.score}`, 10, 35, 30, "left");
-		this.game.canvas.DrawText(`ships : ${this.game.ships}`, 10, 70, 30, "left");
+		// Align stats to top-left corner (small margin from edges)
+		const topMargin = 10;
+		const lineHeight = 35;
+		this.game.canvas.DrawText(
+			`score : ${this.game.score}`,
+			10,
+			topMargin,
+			30,
+			"left",
+		);
+		this.game.canvas.DrawText(
+			`ships : ${this.game.ships}`,
+			10,
+			topMargin + lineHeight,
+			30,
+			"left",
+		);
 		if (this.pause) {
-			this.game.canvas.DrawRect(88, 116, 725, 250, "#000000", "#ffffff", "3");
-			this.game.canvas.DrawText("pause", 450, 280, 90, "center");
+			const centerX = this.game.canvas.width / 2;
+			const centerY = this.game.canvas.height / 2;
+			const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
+			const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+			this.game.canvas.DrawRect(
+				centerX - boxWidth / 2,
+				centerY - boxHeight / 2,
+				boxWidth,
+				boxHeight,
+				"#000000",
+				"#ffffff",
+				"3",
+			);
+			this.game.canvas.DrawText("pause", centerX, centerY, 90, "center");
 		}
 	}
 
@@ -235,7 +279,10 @@ export class GameState extends State {
 				}
 
 				// Reset the ship
-				this.ship.ResetShip(Constants.SCR_WIDTH / 2, Constants.SCR_HEIGHT / 2);
+				this.ship.ResetShip(
+					this.game.canvas.width / 2,
+					this.game.canvas.height / 2,
+				);
 				return;
 			}
 		});

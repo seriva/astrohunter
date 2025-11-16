@@ -17,7 +17,7 @@ export class Ship extends Entity {
 		this.moveForward = false;
 	}
 
-	Update(frametime, input) {
+	Update(frametime, input, canvasWidth, canvasHeight) {
 		// Ship rotation
 		let rotation = 0;
 		if (input.IsDown(37) || this.rotateLeft) {
@@ -49,7 +49,7 @@ export class Ship extends Entity {
 			this.showFlame = true;
 		}
 		this.pos.Add(this.velocity.x, this.velocity.y);
-		this.CapOnScreen();
+		this.CapOnScreen(canvasWidth, canvasHeight);
 	}
 
 	Draw(canvas) {

@@ -18,7 +18,22 @@ export class Game {
 			Constants.SCR_WIDTH,
 			Constants.SCR_HEIGHT,
 		);
+		// Initial resize
 		this.canvas.Resize();
+
+		// Ensure resize after page is fully loaded (handles edge cases)
+		if (document.readyState === "loading") {
+			window.addEventListener("DOMContentLoaded", () => {
+				this.canvas.Resize();
+				PlaceAndSizeButtons();
+			});
+		} else {
+			// Page already loaded, do an immediate resize
+			setTimeout(() => {
+				this.canvas.Resize();
+				PlaceAndSizeButtons();
+			}, 0);
+		}
 
 		//Input
 		this.input = new Input();
@@ -40,7 +55,7 @@ export class Game {
 				const height = this.canvas.element.clientHeight;
 				const width = this.canvas.element.clientWidth;
 				const size = Math.round(
-					(Constants.MOB_BUTTON_SIZE * width) / Constants.SCR_WIDTH,
+					(Constants.MOB_BUTTON_SIZE * width) / this.canvas.width,
 				);
 				setButtons(this.left, size, left + 5, top + (height - 2 * size) - 10);
 				setButtons(
@@ -64,11 +79,29 @@ export class Game {
 			}
 		};
 		PlaceAndSizeButtons();
-		window.addEventListener(
-			"resize",
-			() => {
+
+		// Throttle resize handler for better performance
+		let resizeTimeout;
+		const handleResize = () => {
+			clearTimeout(resizeTimeout);
+			resizeTimeout = setTimeout(() => {
 				this.canvas.Resize();
 				PlaceAndSizeButtons();
+			}, 100);
+		};
+
+		// Handle window resize
+		window.addEventListener("resize", handleResize, false);
+
+		// Handle orientation change on mobile devices
+		window.addEventListener(
+			"orientationchange",
+			() => {
+				// Delay to allow orientation change to complete
+				setTimeout(() => {
+					this.canvas.Resize();
+					PlaceAndSizeButtons();
+				}, 200);
 			},
 			false,
 		);
@@ -138,8 +171,8 @@ export class Game {
 				this.canvas.DrawRect(
 					0,
 					0,
-					Constants.SCR_WIDTH,
-					Constants.SCR_HEIGHT,
+					this.canvas.width,
+					this.canvas.height,
 					"#000000",
 				);
 				this.currentState.Draw();

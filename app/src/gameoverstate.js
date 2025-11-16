@@ -44,20 +44,38 @@ export class GameOverState extends State {
 	Update() {}
 
 	Draw() {
-		this.game.canvas.DrawRect(88, 116, 725, 250, "#000000", "#ffffff", "3");
-		this.game.canvas.DrawText("game over!", 450, 210, 70, "center");
+		const centerX = this.game.canvas.width / 2;
+		const centerY = this.game.canvas.height / 2;
+		const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
+		const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+		this.game.canvas.DrawRect(
+			centerX - boxWidth / 2,
+			centerY - boxHeight / 2,
+			boxWidth,
+			boxHeight,
+			"#000000",
+			"#ffffff",
+			"3",
+		);
+		this.game.canvas.DrawText(
+			"game over!",
+			centerX,
+			centerY - 60,
+			70,
+			"center",
+		);
 		this.game.canvas.DrawText(
 			`score : ${this.game.score}`,
-			450,
-			276,
+			centerX,
+			centerY,
 			40,
 			"center",
 		);
 		if (this.showPressSpace) {
 			this.game.canvas.DrawText(
 				Constants.CONTINUE_TEXT,
-				450,
-				342,
+				centerX,
+				centerY + 60,
 				40,
 				"center",
 			);

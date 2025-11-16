@@ -9,13 +9,13 @@ export class Bullet extends Entity {
 		this.radius = Constants.BULLET_RADIUS;
 	}
 
-	Update(frametime) {
+	Update(frametime, canvasWidth, canvasHeight) {
 		// Update position
 		this.pos.Add(
 			this.dir.x * (Constants.BULLET_ACCELERATION * frametime),
 			this.dir.y * (Constants.BULLET_ACCELERATION * frametime),
 		);
-		this.CapOnScreen();
+		this.CapOnScreen(canvasWidth, canvasHeight);
 
 		// Update lifetime and remove if expands lifetime.
 		const lifetime = Date.now() - this.created;

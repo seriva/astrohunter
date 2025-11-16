@@ -34,10 +34,12 @@ export class Entity {
 		return false;
 	}
 
-	CapOnScreen() {
-		if (this.pos.x < -30) this.pos.x = Constants.SCR_WIDTH + 30;
-		if (this.pos.x > Constants.SCR_WIDTH + 30) this.pos.x = -30;
-		if (this.pos.y < -30) this.pos.y = Constants.SCR_HEIGHT + 30;
-		if (this.pos.y > Constants.SCR_HEIGHT + 30) this.pos.y = -30;
+	CapOnScreen(width, height) {
+		const w = width !== undefined ? width : Constants.SCR_WIDTH;
+		const h = height !== undefined ? height : Constants.SCR_HEIGHT;
+		if (this.pos.x < -30) this.pos.x = w + 30;
+		if (this.pos.x > w + 30) this.pos.x = -30;
+		if (this.pos.y < -30) this.pos.y = h + 30;
+		if (this.pos.y > h + 30) this.pos.y = -30;
 	}
 }

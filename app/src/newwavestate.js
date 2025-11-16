@@ -22,8 +22,32 @@ export class NewWaveState extends State {
 	Update() {}
 
 	Draw() {
-		this.game.canvas.DrawRect(88, 116, 725, 250, "#000000", "#ffffff", "3");
-		this.game.canvas.DrawText("new wave in", 450, 226, 50, "center");
-		this.game.canvas.DrawText(`${this.countDown}`, 450, 310, 50, "center");
+		const centerX = this.game.canvas.width / 2;
+		const centerY = this.game.canvas.height / 2;
+		const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
+		const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+		this.game.canvas.DrawRect(
+			centerX - boxWidth / 2,
+			centerY - boxHeight / 2,
+			boxWidth,
+			boxHeight,
+			"#000000",
+			"#ffffff",
+			"3",
+		);
+		this.game.canvas.DrawText(
+			"new wave in",
+			centerX,
+			centerY - 30,
+			50,
+			"center",
+		);
+		this.game.canvas.DrawText(
+			`${this.countDown}`,
+			centerX,
+			centerY + 30,
+			50,
+			"center",
+		);
 	}
 }
