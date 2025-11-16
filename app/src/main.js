@@ -262,3 +262,7 @@ export class Game {
 		}
 	}
 }
+
+// Initialize and run the game
+const game = new Game();
+game.Run();

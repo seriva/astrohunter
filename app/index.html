@@ -43,7 +43,8 @@
 	<div id="fire" class='button fire'> </div>
 
 	<script type="module">
-		import { Game } from './src/main.js';
+		// Import main.js which initializes and runs the game
+		import './src/main.js';
 
 		// Register Service Worker for PWA
 		if ('serviceWorker' in navigator) {
@@ -88,10 +89,6 @@
 							e.preventDefault();
 					}
 		}, false);
-
-		// create, initiate and run game
-		const game = new Game();
-		game.Run();
 	</script>
 </body>
 </html>
