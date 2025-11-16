@@ -237,9 +237,12 @@ export class GameState extends State {
 			"left",
 		);
 		if (this.pause) {
-			const centerX = this.game.canvas.logicalWidth / 2;
-			const centerY = this.game.canvas.logicalHeight / 2;
-			this.game.canvas.DrawUIBox(centerX, centerY, "pause", 90);
+			this.game.canvas.DrawUIBox(
+				this.game.canvas.GetCenterX(),
+				this.game.canvas.GetCenterY(),
+				"pause",
+				90,
+			);
 		}
 	}
 

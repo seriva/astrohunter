@@ -25,22 +25,32 @@ export class NewWaveState extends State {
 
 	// Draws countdown screen for next wave.
 	Draw() {
-		const centerX = this.game.canvas.logicalWidth / 2;
-		const centerY = this.game.canvas.logicalHeight / 2;
+		const centerX = this.game.canvas.GetCenterX();
+		const centerY = this.game.canvas.GetCenterY();
+		const boxDims = this.game.canvas.GetUIBoxDimensions();
+		const offsetScale = this.game.canvas.GetBoxOffsetScale();
 		this.game.canvas.DrawUIBox(centerX, centerY, "", 0);
+		// Calculate font size that fits within the box
+		const textSize = this.game.canvas.GetFontSizeForBox(
+			boxDims.width,
+			boxDims.height,
+			50,
+		);
 		this.game.canvas.DrawText(
 			"new wave in",
 			centerX,
-			centerY + Constants.TEXT_OFFSET.SMALL_OFFSET,
-			50,
+			centerY + Constants.TEXT_OFFSET.SMALL_OFFSET * offsetScale,
+			textSize,
 			"center",
+			false,
 		);
 		this.game.canvas.DrawText(
 			`${this.countDown}`,
 			centerX,
-			centerY + Constants.TEXT_OFFSET.SMALL_OFFSET_POS,
-			50,
+			centerY + Constants.TEXT_OFFSET.SMALL_OFFSET_POS * offsetScale,
+			textSize,
 			"center",
+			false,
 		);
 	}
 }

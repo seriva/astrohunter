@@ -63,15 +63,73 @@ export class Canvas {
 		this.element.style.marginLeft = `${-this.width / 2}px`;
 	}
 
-	// Draws text with automatic scaling.
-	DrawText(t, x, y, s, a) {
+	// Calculates responsive font size based on screen dimensions.
+	GetResponsiveFontSize(baseSize) {
+		// Scale based on the smaller dimension to ensure text fits on all screens
+		const minDimension = Math.min(this.width, this.height);
+		const baseDimension = Math.min(
+			this.baseLogicalWidth,
+			this.baseLogicalHeight,
+		);
+		const scaleFactor = minDimension / baseDimension;
+		return baseSize * scaleFactor;
+	}
+
+	// Calculates font size that fits within a box of given dimensions.
+	GetFontSizeForBox(_boxWidth, boxHeight, baseFontSize, padding = 0.15) {
+		const availableHeight = boxHeight * (1 - padding * 2);
+		const heightBasedSize = availableHeight * 0.22; // ~22% of height for good fit
+		const responsiveSize = this.GetResponsiveFontSize(baseFontSize);
+		// Use smaller constraint, but ensure minimum 60% of responsive size
+		return Math.max(
+			Math.min(heightBasedSize, responsiveSize),
+			responsiveSize * 0.6,
+		);
+	}
+
+	// Gets the offset scale factor for text positioning relative to box size.
+	GetBoxOffsetScale() {
+		const boxDims = this.GetUIBoxDimensions();
+		return boxDims.height / Constants.UI.BOX_HEIGHT_MAX;
+	}
+
+	// Gets the UI box dimensions (useful for calculating text positions).
+	GetUIBoxDimensions() {
+		const responsiveBoxWidth = Math.min(
+			Constants.UI.BOX_WIDTH_MAX * (this.width / this.baseLogicalWidth),
+			this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO,
+		);
+		const responsiveBoxHeight = Math.min(
+			Constants.UI.BOX_HEIGHT_MAX * (this.height / this.baseLogicalHeight),
+			this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO,
+		);
+		return { width: responsiveBoxWidth, height: responsiveBoxHeight };
+	}
+
+	// Gets the center X coordinate of the canvas.
+	GetCenterX() {
+		return this.logicalWidth / 2;
+	}
+
+	// Gets the center Y coordinate of the canvas.
+	GetCenterY() {
+		return this.logicalHeight / 2;
+	}
+
+	// Draws text with automatic scaling and responsive sizing.
+	DrawText(t, x, y, s, a, responsive = true) {
 		this.context.fillStyle = "#ffffff";
 		this.context.textAlign = a;
 		// Use "top" baseline for left/right aligned text, "middle" for center-aligned
 		this.context.textBaseline = a === "center" ? "middle" : "top";
-		// Use scaleX for font size (since scaleX = scaleY, either works)
-		this.context.font = `bold ${s * this.scaleX}px GameFont`;
-		this.context.fillText(t, x * this.scaleX, y * this.scaleX);
+		// Use responsive scaling for better text sizing across different screens
+		const fontSize = responsive
+			? this.GetResponsiveFontSize(s)
+			: s * this.scaleX;
+		this.context.font = `bold ${fontSize}px GameFont`;
+		// Center text horizontally if center-aligned
+		const drawX = a === "center" ? x * this.scaleX : x * this.scaleX;
+		this.context.fillText(t, drawX, y * this.scaleX);
 	}
 
 	// Draws a rectangle with optional stroke.
@@ -117,23 +175,30 @@ export class Canvas {
 
 	// Draws a UI box with centered text - used for pause, game over, etc.
 	DrawUIBox(centerX, centerY, text, fontSize, textOffsetY = 0) {
-		const boxWidth = Math.min(
-			Constants.UI.BOX_WIDTH_MAX,
-			this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO,
-		);
-		const boxHeight = Math.min(
-			Constants.UI.BOX_HEIGHT_MAX,
-			this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO,
-		);
+		const boxDims = this.GetUIBoxDimensions();
 		this.DrawRect(
-			centerX - boxWidth / 2,
-			centerY - boxHeight / 2,
-			boxWidth,
-			boxHeight,
+			centerX - boxDims.width / 2,
+			centerY - boxDims.height / 2,
+			boxDims.width,
+			boxDims.height,
 			"#000000",
 			"#ffffff",
 			Constants.UI.BOX_STROKE_WIDTH.toString(),
 		);
-		this.DrawText(text, centerX, centerY + textOffsetY, fontSize, "center");
+		if (text) {
+			const boxFontSize = this.GetFontSizeForBox(
+				boxDims.width,
+				boxDims.height,
+				fontSize,
+			);
+			this.DrawText(
+				text,
+				centerX,
+				centerY + textOffsetY,
+				boxFontSize,
+				"center",
+				false,
+			);
+		}
 	}
 }
