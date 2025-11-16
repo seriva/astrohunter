@@ -1,4 +1,6 @@
-Constants = {
+import { mobileAndTabletcheck } from './utils.js';
+
+export const Constants = {
 	SCR_WIDTH : 900,
 	SCR_HEIGHT : 506,
 	MOB_BUTTON_SIZE : 100,
@@ -53,7 +55,7 @@ Constants = {
 	BUTTON_PRESSED_OPACITY : 0.8
 };
 
-if (window.mobileAndTabletcheck()){
+if (mobileAndTabletcheck()){
 	Constants.START_TEXT = "tap to start game";
 	Constants.CONTINUE_TEXT = "tap to continue";
 };

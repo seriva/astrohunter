@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta name="viewport" content="user-scalable=no, initial-scale=1, maximum-scale=1, minimum-scale=1, width=device-width">
+
+	<title>Asteroids</title>
+
+	<!-- Stylesheets -->
+	<link rel="stylesheet" href="css/style.css">
+
+	<!-- Scripts -->
+	<script type="module" src="src/main.js"></script>
+</head>
+<body bgcolor="#000000" >
+	<canvas id="canvas" ></canvas>
+	<div id="forward" class='button forward'> </div>
+	<div id="left" class='button left'> </div>
+	<div id="right" class='button right'> </div>
+	<div id="fire" class='button fire'> </div>
+
+	<script type="module">
+		import { Game } from './src/main.js';
+
+		// disable scrolling by any of the keys.
+		window.addEventListener("keydown", function(e) {
+					// space and arrow keys
+					if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
+							e.preventDefault();
+					}
+		}, false);
+
+		// create, initiate and run game
+		const game = new Game();
+		game.Run();
+	</script>
+</body>
+</html>

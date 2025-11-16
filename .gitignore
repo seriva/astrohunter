@@ -42,8 +42,6 @@ Network Trash Folder
 Temporary Items
 .apdisk
 
-/platforms/**
-/plugins/cordova-plugin-whitelist/**
-/plugins/cordova-plugin-vibration/**
-/plugins/cordova-plugin-crosswalk-webview/**
-/plugins/android.json
+# microtastic specific
+public
+app/src/dependencies
