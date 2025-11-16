@@ -51,3 +51,6 @@ yarn-error.log*
 # microtastic specific
 public/
 app/src/dependencies/
+
+# PWA icon generator (temporary tool)
+app/icons/generate-icons.html

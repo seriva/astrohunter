@@ -1,0 +1,33 @@
+# PWA Support - Serve manifest.json with correct MIME type
+<IfModule mod_mime.c>
+	AddType application/manifest+json .json
+	AddType application/json .json
+</IfModule>
+
+# Cache static assets
+<IfModule mod_expires.c>
+	ExpiresActive On
+	ExpiresByType image/png "access plus 1 year"
+	ExpiresByType image/jpg "access plus 1 year"
+	ExpiresByType image/jpeg "access plus 1 year"
+	ExpiresByType image/gif "access plus 1 year"
+	ExpiresByType image/svg+xml "access plus 1 year"
+	ExpiresByType application/javascript "access plus 1 month"
+	ExpiresByType text/css "access plus 1 month"
+	ExpiresByType font/ttf "access plus 1 year"
+	ExpiresByType font/woff "access plus 1 year"
+	ExpiresByType font/woff2 "access plus 1 year"
+</IfModule>
+
+# Service Worker - must not be cached
+<FilesMatch "sw\.js$">
+	Header set Cache-Control "no-cache, no-store, must-revalidate"
+	Header set Pragma "no-cache"
+	Header set Expires 0
+</FilesMatch>
+
+# Manifest - short cache
+<FilesMatch "manifest\.json$">
+	Header set Cache-Control "public, max-age=3600"
+</FilesMatch>
+

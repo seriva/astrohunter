@@ -112,3 +112,33 @@ astrohunter/
 ### Git Hooks
 
 This project uses [Husky](https://typicode.github.io/husky/) for Git hooks. The pre-commit hook automatically runs `npm run check` to ensure code quality before commits. If the check fails, the commit will be blocked until issues are resolved.
+
+## Progressive Web App (PWA)
+
+This game is configured as a Progressive Web App, allowing it to be installed on mobile devices and desktops.
+
+### PWA Features
+
+- **Offline Support**: Service worker caches game assets for offline play
+- **Installable**: Can be added to home screen on mobile devices and desktop
+- **App-like Experience**: Runs in standalone mode when installed
+- **Auto-updates**: Service worker handles updates automatically
+
+### Setting Up Icons
+
+Before deploying, you need to create PWA icons:
+
+1. Create a 512x512 pixel icon image (PNG format)
+2. Use the icon generator tool: Open `app/icons/generate-icons.html` in a browser
+3. Or use an online tool like [PWA Asset Generator](https://github.com/onderceylan/pwa-asset-generator)
+4. Place all generated icons in the `app/icons/` directory
+
+Required icon sizes:
+- 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512 pixels
+
+### Testing PWA
+
+1. Build the production version: `npm run prod`
+2. Serve the `public/` directory with a local server (required for service worker)
+3. Open in Chrome/Edge and check the install prompt
+4. Use Chrome DevTools > Application > Service Workers to test offline functionality
