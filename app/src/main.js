@@ -239,34 +239,40 @@ export class Game {
 					const dx = e2.pos.x - e1.pos.x;
 					const dy = e2.pos.y - e1.pos.y;
 					const distSq = dx * dx + dy * dy;
-					// Handle case where asteroids are on top of each other
-					const dist = distSq < 0.01 ? 0.1 : Math.sqrt(distSq);
 					const minDist = e1.radius + e2.radius;
-					const overlap = minDist - dist;
+					const minDistSq = minDist * minDist;
 
-					// Only separate if they're overlapping
-					if (overlap > 0) {
-						const nx = dx / dist;
-						const ny = dy / dist;
-						// Push apart by overlap amount plus a small extra to prevent sticking
-						const pushAmount = (overlap + 1) * 0.5;
-						e1.pos.x -= nx * pushAmount;
-						e1.pos.y -= ny * pushAmount;
-						e2.pos.x += nx * pushAmount;
-						e2.pos.y += ny * pushAmount;
+					// Only process if actually colliding (already checked by IsColliding, but verify)
+					if (distSq < minDistSq) {
+						// Handle case where asteroids are on top of each other
+						const dist = distSq < 0.01 ? 0.1 : Math.sqrt(distSq);
+						const invDist = 1 / dist;
+						const nx = dx * invDist;
+						const ny = dy * invDist;
+						const overlap = minDist - dist;
+
+						// Only separate if they're overlapping
+						if (overlap > 0) {
+							// Push apart by overlap amount plus a small extra to prevent sticking
+							const pushAmount = (overlap + 1) * 0.5;
+							e1.pos.x -= nx * pushAmount;
+							e1.pos.y -= ny * pushAmount;
+							e2.pos.x += nx * pushAmount;
+							e2.pos.y += ny * pushAmount;
+						}
+
+						// Swap velocities for elastic collision
+						const d = new Vector(nx, ny);
+						const aci = e1.dir.Dot(d);
+						const bci = e2.dir.Dot(d);
+						const acf = bci;
+						const bcf = aci;
+
+						e1.dir.Set((acf - aci) * d.x, (acf - aci) * d.y);
+						e1.dir.Normalize();
+						e2.dir.Set((bcf - bci) * d.x, (bcf - bci) * d.y);
+						e2.dir.Normalize();
 					}
-
-					// Swap velocities for elastic collision
-					const d = new Vector(dx / dist, dy / dist);
-					const aci = e1.dir.Dot(d);
-					const bci = e2.dir.Dot(d);
-					const acf = bci;
-					const bcf = aci;
-
-					e1.dir.Set((acf - aci) * d.x, (acf - aci) * d.y);
-					e1.dir.Normalize();
-					e2.dir.Set((bcf - bci) * d.x, (bcf - bci) * d.y);
-					e2.dir.Normalize();
 				}
 			}
 		}

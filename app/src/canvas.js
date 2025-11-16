@@ -83,7 +83,10 @@ export class Canvas {
 		const heightBasedSize = availableHeight * 0.22;
 		// Also consider width to prevent text from being too wide
 		// Estimate: average character width is about 0.6 * font size
-		const widthBasedSize = (availableWidth / 20) * 0.6; // Rough estimate for ~20 chars
+		// Typical text length is ~15-25 chars, use 20 as average
+		const avgCharWidth = 0.6;
+		const estimatedChars = 20;
+		const widthBasedSize = (availableWidth / estimatedChars) * avgCharWidth;
 		// Use the smaller constraint to ensure text fits both dimensions
 		const boxConstrainedSize = Math.min(heightBasedSize, widthBasedSize);
 		// Scale base size to current screen
@@ -96,8 +99,10 @@ export class Canvas {
 	}
 
 	// Gets the offset scale factor for text positioning relative to box size.
-	GetBoxOffsetScale() {
-		const boxDims = this.GetUIBoxDimensions();
+	GetBoxOffsetScale(boxDims = null) {
+		if (!boxDims) {
+			boxDims = this.GetUIBoxDimensions();
+		}
 		return boxDims.height / Constants.UI.BOX_HEIGHT_MAX;
 	}
 
@@ -188,8 +193,10 @@ export class Canvas {
 	}
 
 	// Draws a UI box with centered text - used for pause, game over, etc.
-	DrawUIBox(centerX, centerY, text, fontSize, textOffsetY = 0) {
-		const boxDims = this.GetUIBoxDimensions();
+	DrawUIBox(centerX, centerY, text, fontSize, textOffsetY = 0, boxDims = null) {
+		if (!boxDims) {
+			boxDims = this.GetUIBoxDimensions();
+		}
 		this.DrawRect(
 			centerX - boxDims.width / 2,
 			centerY - boxDims.height / 2,

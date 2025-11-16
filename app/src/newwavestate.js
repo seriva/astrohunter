@@ -28,8 +28,8 @@ export class NewWaveState extends State {
 		const centerX = this.game.canvas.GetCenterX();
 		const centerY = this.game.canvas.GetCenterY();
 		const boxDims = this.game.canvas.GetUIBoxDimensions();
-		const offsetScale = this.game.canvas.GetBoxOffsetScale();
-		this.game.canvas.DrawUIBox(centerX, centerY, "", 0);
+		const offsetScale = this.game.canvas.GetBoxOffsetScale(boxDims);
+		this.game.canvas.DrawUIBox(centerX, centerY, "", 0, 0, boxDims);
 		// Calculate font size that fits within the box
 		const textSize = this.game.canvas.GetFontSizeForBox(
 			boxDims.width,
