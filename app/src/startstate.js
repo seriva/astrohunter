@@ -22,8 +22,8 @@ export class StartState extends State {
 			this.asteroids[i] = new Asteroid(
 				i,
 				Math.floor(Math.random() * 3),
-				Math.random() * this.game.canvas.width,
-				Math.random() * this.game.canvas.height,
+				Math.random() * this.game.canvas.logicalWidth,
+				Math.random() * this.game.canvas.logicalHeight,
 				dir.x,
 				dir.y,
 			);
@@ -61,8 +61,8 @@ export class StartState extends State {
 			this.asteroids[key].Update(
 				this.game.frameTime,
 				null,
-				this.game.canvas.width,
-				this.game.canvas.height,
+				this.game.canvas.logicalWidth,
+				this.game.canvas.logicalHeight,
 			);
 		});
 		this.game.DoAsteroidColisions(this.asteroids);
@@ -72,10 +72,10 @@ export class StartState extends State {
 		Object.keys(this.asteroids).forEach((key) => {
 			this.asteroids[key].Draw(this.game.canvas);
 		});
-		const centerX = this.game.canvas.width / 2;
-		const centerY = this.game.canvas.height / 2;
-		const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
-		const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+		const centerX = this.game.canvas.logicalWidth / 2;
+		const centerY = this.game.canvas.logicalHeight / 2;
+		const boxWidth = Math.min(725, this.game.canvas.logicalWidth * 0.8);
+		const boxHeight = Math.min(250, this.game.canvas.logicalHeight * 0.5);
 		this.game.canvas.DrawRect(
 			centerX - boxWidth / 2,
 			centerY - boxHeight / 2,

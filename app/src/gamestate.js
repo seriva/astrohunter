@@ -18,12 +18,12 @@ export class GameState extends State {
 		// Vars.
 		this.ship = new Ship(
 			"ship",
-			this.game.canvas.width / 2,
-			this.game.canvas.height / 2,
+			this.game.canvas.logicalWidth / 2,
+			this.game.canvas.logicalHeight / 2,
 		);
 		this.ship.ResetShip(
-			this.game.canvas.width / 2,
-			this.game.canvas.height / 2,
+			this.game.canvas.logicalWidth / 2,
+			this.game.canvas.logicalHeight / 2,
 		);
 		this.fireTimer = 0;
 		this.bulletCounter = 0;
@@ -42,8 +42,8 @@ export class GameState extends State {
 			this.asteroids[id] = new Asteroid(
 				id,
 				0,
-				Math.random() * this.game.canvas.width,
-				Math.random() * this.game.canvas.height,
+				Math.random() * this.game.canvas.logicalWidth,
+				Math.random() * this.game.canvas.logicalHeight,
 				dir.x,
 				dir.y,
 			);
@@ -178,15 +178,15 @@ export class GameState extends State {
 		this.ship.Update(
 			this.game.frameTime,
 			this.game.input,
-			this.game.canvas.width,
-			this.game.canvas.height,
+			this.game.canvas.logicalWidth,
+			this.game.canvas.logicalHeight,
 		);
 
 		Object.keys(this.bullets).forEach((key) => {
 			this.bullets[key].Update(
 				this.game.frameTime,
-				this.game.canvas.width,
-				this.game.canvas.height,
+				this.game.canvas.logicalWidth,
+				this.game.canvas.logicalHeight,
 			);
 		});
 
@@ -194,8 +194,8 @@ export class GameState extends State {
 			this.asteroids[key].Update(
 				this.game.frameTime,
 				null,
-				this.game.canvas.width,
-				this.game.canvas.height,
+				this.game.canvas.logicalWidth,
+				this.game.canvas.logicalHeight,
 			);
 		});
 
@@ -241,10 +241,10 @@ export class GameState extends State {
 			"left",
 		);
 		if (this.pause) {
-			const centerX = this.game.canvas.width / 2;
-			const centerY = this.game.canvas.height / 2;
-			const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
-			const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+			const centerX = this.game.canvas.logicalWidth / 2;
+			const centerY = this.game.canvas.logicalHeight / 2;
+			const boxWidth = Math.min(725, this.game.canvas.logicalWidth * 0.8);
+			const boxHeight = Math.min(250, this.game.canvas.logicalHeight * 0.5);
 			this.game.canvas.DrawRect(
 				centerX - boxWidth / 2,
 				centerY - boxHeight / 2,
@@ -280,8 +280,8 @@ export class GameState extends State {
 
 				// Reset the ship
 				this.ship.ResetShip(
-					this.game.canvas.width / 2,
-					this.game.canvas.height / 2,
+					this.game.canvas.logicalWidth / 2,
+					this.game.canvas.logicalHeight / 2,
 				);
 				return;
 			}

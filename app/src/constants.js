@@ -1,8 +1,8 @@
 import { mobileAndTabletcheck } from "./utils.js";
 
 export const Constants = {
-	SCR_WIDTH: 900,
-	SCR_HEIGHT: 506,
+	SCR_WIDTH: 1100,
+	SCR_HEIGHT: 620,
 	MOB_BUTTON_SIZE: 100,
 
 	SHIPS: 3,

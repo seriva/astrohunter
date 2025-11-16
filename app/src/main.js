@@ -55,7 +55,7 @@ export class Game {
 				const height = this.canvas.element.clientHeight;
 				const width = this.canvas.element.clientWidth;
 				const size = Math.round(
-					(Constants.MOB_BUTTON_SIZE * width) / this.canvas.width,
+					(Constants.MOB_BUTTON_SIZE * width) / this.canvas.logicalWidth,
 				);
 				setButtons(this.left, size, left + 5, top + (height - 2 * size) - 10);
 				setButtons(
@@ -167,12 +167,12 @@ export class Game {
 				// Update state
 				this.currentState.Update();
 
-				// Draw state
+				// Draw state (use logical dimensions for background)
 				this.canvas.DrawRect(
 					0,
 					0,
-					this.canvas.width,
-					this.canvas.height,
+					this.canvas.logicalWidth,
+					this.canvas.logicalHeight,
 					"#000000",
 				);
 				this.currentState.Draw();

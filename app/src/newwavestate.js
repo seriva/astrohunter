@@ -22,10 +22,10 @@ export class NewWaveState extends State {
 	Update() {}
 
 	Draw() {
-		const centerX = this.game.canvas.width / 2;
-		const centerY = this.game.canvas.height / 2;
-		const boxWidth = Math.min(725, this.game.canvas.width * 0.8);
-		const boxHeight = Math.min(250, this.game.canvas.height * 0.5);
+		const centerX = this.game.canvas.logicalWidth / 2;
+		const centerY = this.game.canvas.logicalHeight / 2;
+		const boxWidth = Math.min(725, this.game.canvas.logicalWidth * 0.8);
+		const boxHeight = Math.min(250, this.game.canvas.logicalHeight * 0.5);
 		this.game.canvas.DrawRect(
 			centerX - boxWidth / 2,
 			centerY - boxHeight / 2,
