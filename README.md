@@ -1,25 +1,29 @@
 ## About
 
-This is just another clone of the famous Asteroid game. I wrote it to get myself familiar with JavaScript when I was starting frontend development. Originally written in pure ES5, it has been modernized to use ES6 modules and microtastic for development and building.
+This is just another clone of the famous Asteroid game. Originally written in pure ES5, it has been modernized to use ES6 modules, microtastic for development and building, and configured as a Progressive Web App (PWA).
 
-Later on I added onscreen controls for mobile browsers and leveraged Cordova to deploy it as a standalone application on Android.
+The game features onscreen controls for mobile browsers and can be installed as a standalone application on mobile devices and desktops.
 
 ## Features
 
 - **Classic Asteroids Gameplay**: Navigate your ship, shoot asteroids, and avoid collisions
+- **Progressive Web App (PWA)**: Installable on mobile devices and desktops with offline support
 - **Mobile Support**: Touch controls optimized for mobile devices
 - **Sound Effects**: Background music and sound effects for enhanced gameplay
 - **Progressive Difficulty**: Multiple waves with increasing challenge
 - **Responsive Design**: Adapts to different screen sizes
-- **Cross-Platform**: Works in browsers and as a native Android app
+- **Modern JavaScript**: Built with ES6 modules and classes
+- **Code Quality**: Automated linting and formatting with Biome
 
 ## Tech Stack
 
-- **Language**: ES6 JavaScript with modules
+- **Language**: ES6+ JavaScript with ES6 modules
 - **Rendering**: HTML5 Canvas
-- **Build Tool**: Microtastic (ES6 module bundler)
-- **Mobile Framework**: Apache Cordova/PhoneGap (optional)
-- **Architecture**: ES6 classes with game states
+- **Build Tool**: [Microtastic](https://www.npmjs.com/package/microtastic) - ES6 module bundler
+- **Code Quality**: [Biome](https://biomejs.dev/) - Fast formatter and linter
+- **Git Hooks**: [Husky](https://typicode.github.io/husky/) - Pre-commit code quality checks
+- **Architecture**: ES6 classes with game state management
+- **PWA**: Service worker for offline support and installability
 - **Audio**: Web Audio API with OGG format support
 - **Controls**: Keyboard and touch input support
 
@@ -30,25 +34,46 @@ Later on I added onscreen controls for mobile browsers and leveraged Cordova to 
 - npm (comes with Node.js)
 
 ### Development
-1. Clone the repository
+1. Clone the repository:
+   ```bash
+   git clone <repository-url>
+   cd astrohunter
+   ```
+
 2. Install dependencies:
    ```bash
    npm install
    ```
+
 3. Start the development server:
    ```bash
    npm run dev
    ```
-4. Open your browser to the URL shown (typically `http://localhost:3000`)
-5. Start playing!
+   The server will start on `http://localhost:8181` (default microtastic port)
+
+4. Open your browser and start playing!
 
 ### Production Build
-1. Build for production:
+1. Build for production (includes code quality checks):
    ```bash
    npm run prod
    ```
-2. The production-ready files will be in the `public/` directory
-3. Serve the `public/` directory with any static file server
+   This will:
+   - Run Biome code quality checks
+   - Build optimized bundle with microtastic
+   - Generate service worker for PWA
+   - Output to `public/` directory
+
+2. Serve the `public/` directory with any static file server:
+   ```bash
+   # Using Python
+   cd public && python3 -m http.server 8000
+   
+   # Using Node.js http-server
+   npx http-server public -p 8000
+   ```
+   
+   **Note**: Service workers require HTTPS or localhost to function properly.
 
 ### Android App (Optional)
 1. Install Cordova CLI: `npm install -g cordova`
@@ -85,60 +110,47 @@ astrohunter/
 │   │   ├── asteroid.js     # Asteroid entities
 │   │   ├── bullet.js       # Bullet system
 │   │   ├── states.js       # Game state constants
+│   │   ├── entity.js       # Base entity class
+│   │   ├── vector.js       # Vector math utilities
 │   │   └── ...             # Other game modules
+│   ├── icons/              # PWA icons and favicons
+│   │   ├── favicon.ico     # Standard favicon
+│   │   ├── favicon-*.png   # Favicon sizes
+│   │   └── icon-*.png      # PWA app icons
 │   ├── sounds/             # Audio files
 │   ├── images/             # Game assets
+│   ├── manifest.json       # PWA manifest
 │   └── index.html          # Main entry point
-├── public/                  # Production build output (generated)
+├── public/                 # Production build output (generated)
+│   ├── sw.js               # Service worker (auto-generated)
+│   └── ...                 # Built and optimized files
+├── .husky/                 # Git hooks configuration
+├── biome.json              # Biome code quality configuration
+├── .microtastic            # Microtastic build configuration
 ├── package.json            # npm configuration
 └── README.md               # This file
 ```
 
 ## Development Scripts
 
-- `npm run dev` - Start development server with hot reload
-- `npm run prod` - Build optimized production bundle
-- `npm run build` - Alias for `npm run prod`
+### Build & Development
+- `npm run dev` - Start development server with hot reload (port 8181)
+- `npm run prod` - Build optimized production bundle (runs code checks first)
 - `npm start` - Alias for `npm run dev`
+- `npm run dependencies` - Prepare microtastic dependencies
 
 ### Code Quality
 
-- `npm run lint` - Run Biome linter
-- `npm run lint:fix` - Run Biome linter and auto-fix issues
-- `npm run format` - Format code with Biome
 - `npm run check` - Check code formatting, linting, and import sorting
-- `npm run check:fix` - Check and auto-fix all issues
+- `npm run format` - Format code with Biome
+- `npm run prepare` - Initialize Husky and microtastic (runs automatically on `npm install`)
 
 ### Git Hooks
 
 This project uses [Husky](https://typicode.github.io/husky/) for Git hooks. The pre-commit hook automatically runs `npm run check` to ensure code quality before commits. If the check fails, the commit will be blocked until issues are resolved.
 
+**Note**: Code quality checks are enforced automatically. Fix issues with `npm run format` or manually address linting errors.
+
 ## Progressive Web App (PWA)
 
-This game is configured as a Progressive Web App, allowing it to be installed on mobile devices and desktops.
-
-### PWA Features
-
-- **Offline Support**: Service worker caches game assets for offline play
-- **Installable**: Can be added to home screen on mobile devices and desktop
-- **App-like Experience**: Runs in standalone mode when installed
-- **Auto-updates**: Service worker handles updates automatically
-
-### Setting Up Icons
-
-Before deploying, you need to create PWA icons:
-
-1. Create a 512x512 pixel icon image (PNG format)
-2. Use the icon generator tool: Open `app/icons/generate-icons.html` in a browser
-3. Or use an online tool like [PWA Asset Generator](https://github.com/onderceylan/pwa-asset-generator)
-4. Place all generated icons in the `app/icons/` directory
-
-Required icon sizes:
-- 72x72, 96x96, 128x128, 144x144, 152x152, 192x192, 384x384, 512x512 pixels
-
-### Testing PWA
-
-1. Build the production version: `npm run prod`
-2. Serve the `public/` directory with a local server (required for service worker)
-3. Open in Chrome/Edge and check the install prompt
-4. Use Chrome DevTools > Application > Service Workers to test offline functionality
+This game is configured as a Progressive Web App with offline support, installability, and all required icons. The service worker (auto-generated by microtastic) caches game assets for offline play. To test, build with `npm run prod`, serve the `public/` directory over HTTPS or localhost, and check the install prompt in Chrome/Edge.
