@@ -6,6 +6,7 @@ import { Explosion } from "./explosion.js";
 import { Ship } from "./ship.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
+import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 export class GameState extends State {

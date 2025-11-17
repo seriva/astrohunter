@@ -64,7 +64,7 @@
 			"name": "Play Game",
 			"short_name": "Play",
 			"description": "Start playing AstroHunter",
-			"url": "/",
+			"url": "./",
 			"icons": [
 				{
 					"src": "icons/icon-96x96.png",
