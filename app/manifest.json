@@ -4,10 +4,10 @@
 	"description": "A classic Asteroids game built with ES6 modules",
 	"start_url": "./",
 	"scope": "./",
-	"display": "standalone",
-	"background_color": "#000000",
-	"theme_color": "#000000",
-	"orientation": "landscape",
+    "theme_color": "#000000",
+    "background_color": "#000000",
+    "display": "fullscreen",
+    "orientation": "landscape",
 	"icons": [
 		{
 			"src": "icons/favicon-16x16.png",
