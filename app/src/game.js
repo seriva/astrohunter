@@ -103,7 +103,7 @@ export class Game {
 				() => {
 					music.play();
 					if (this.state === States.GAME) {
-						this._currentState.pause = false;
+						this._currentState._pause = false;
 					}
 				},
 				false,
@@ -113,7 +113,7 @@ export class Game {
 				() => {
 					music.pause();
 					if (this.state === States.GAME) {
-						this._currentState.pause = true;
+						this._currentState._pause = true;
 					}
 				},
 				false,

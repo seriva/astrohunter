@@ -53,9 +53,12 @@ export class Vector {
 	}
 
 	Normalize() {
-		const l = 1 / this.Length();
-		this.x *= l;
-		this.y *= l;
+		const length = this.Length();
+		if (length > 0) {
+			const l = 1 / length;
+			this.x *= l;
+			this.y *= l;
+		}
 	}
 
 	Dot(v) {
