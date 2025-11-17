@@ -57,21 +57,6 @@
 			"type": "image/png",
 			"purpose": "any maskable"
 		}
-	],
-	"categories": ["games", "entertainment"],
-	"shortcuts": [
-		{
-			"name": "Play Game",
-			"short_name": "Play",
-			"description": "Start playing AstroHunter",
-			"url": "./",
-			"icons": [
-				{
-					"src": "icons/icon-96x96.png",
-					"sizes": "96x96"
-				}
-			]
-		}
 	]
 }
 
