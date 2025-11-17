@@ -113,6 +113,8 @@ export const Constants = {
 		SEPARATION_EXTRA: 1,
 	},
 
+	SCREEN_WRAP_MARGIN: 5,
+
 	START_TEXT: "hit space to start game",
 	CONTINUE_TEXT: "hit space to continue",
 

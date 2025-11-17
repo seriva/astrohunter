@@ -1,6 +1,7 @@
 @font-face {
 	font-family: "GameFont";
 	src: url("../font/font.ttf");
+	font-display: block;
 };
 
 html, body {

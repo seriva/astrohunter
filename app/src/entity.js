@@ -34,7 +34,8 @@ export class Entity {
 	CapOnScreen(width, height) {
 		const w = width ?? Constants.SCR_WIDTH;
 		const h = height ?? Constants.SCR_HEIGHT;
-		const margin = 30;
+		// Use entity's radius plus small margin for smooth wrapping
+		const margin = this.radius + Constants.SCREEN_WRAP_MARGIN;
 		if (this.pos.x < -margin) this.pos.x = w + margin;
 		if (this.pos.x > w + margin) this.pos.x = -margin;
 		if (this.pos.y < -margin) this.pos.y = h + margin;
