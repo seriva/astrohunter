@@ -1,7 +1,6 @@
 // Explosion entity - particle effects for collisions and destruction.
-import { Constants } from "./constants.js";
+import { Constants, IS_MOBILE } from "./constants.js";
 import { Entity } from "./entity.js";
-import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 export class Explosion extends Entity {
@@ -22,7 +21,7 @@ export class Explosion extends Entity {
 			this.dirs.push(dir);
 		}
 
-		if (mobileAndTabletcheck() && vibrate > 0) {
+		if (IS_MOBILE && vibrate > 0) {
 			navigator.vibrate(vibrate);
 		}
 	}

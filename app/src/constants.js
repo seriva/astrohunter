@@ -1,6 +1,9 @@
 // Game constants - all configurable game values (sizes, speeds, points, etc.).
 import { mobileAndTabletcheck } from "./utils.js";
 
+// Cache mobile detection result (device type doesn't change during gameplay)
+export const IS_MOBILE = mobileAndTabletcheck();
+
 // Key code constants
 export const Keys = {
 	SPACE: 32,
@@ -103,6 +106,13 @@ export const Constants = {
 		FRAME_TIME_MAX: 100,
 	},
 
+	COLLISION: {
+		MIN_DISTANCE_SQ: 0.01,
+		FALLBACK_DISTANCE: 0.1,
+		PUSH_FACTOR: 0.5,
+		SEPARATION_EXTRA: 1,
+	},
+
 	START_TEXT: "hit space to start game",
 	CONTINUE_TEXT: "hit space to continue",
 
@@ -110,7 +120,7 @@ export const Constants = {
 	BUTTON_PRESSED_OPACITY: 0.8,
 };
 
-if (mobileAndTabletcheck()) {
+if (IS_MOBILE) {
 	Constants.START_TEXT = "tap to start game";
 	Constants.CONTINUE_TEXT = "tap to continue";
 }

@@ -1,9 +1,8 @@
 // StartState - title screen with animated asteroids and start prompt.
 import { Asteroid } from "./asteroid.js";
-import { Constants, Keys } from "./constants.js";
+import { Constants, IS_MOBILE, Keys } from "./constants.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
-import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 export class StartState extends State {
@@ -40,7 +39,7 @@ export class StartState extends State {
 		const continueGame = (e) => {
 			clearInterval(this.showPressSpace);
 			this.game.SetState(States.GAME);
-			if (mobileAndTabletcheck()) {
+			if (IS_MOBILE) {
 				this.game.canvas.element.removeEventListener(
 					"touchend",
 					continueGame,
@@ -50,7 +49,7 @@ export class StartState extends State {
 			}
 		};
 		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
-		if (mobileAndTabletcheck()) {
+		if (IS_MOBILE) {
 			this.game.canvas.element.addEventListener(
 				"touchend",
 				continueGame,
@@ -62,12 +61,7 @@ export class StartState extends State {
 	// Updates asteroids and handles their collisions.
 	Update() {
 		for (const key in this.asteroids)
-			this.asteroids[key].Update(
-				this.game.frameTime,
-				null,
-				this.game.canvas.logicalWidth,
-				this.game.canvas.logicalHeight,
-			);
+			this.asteroids[key].Update(this.game.frameTime, this.game.canvas);
 		this.game.DoAsteroidColisions(this.asteroids);
 	}
 

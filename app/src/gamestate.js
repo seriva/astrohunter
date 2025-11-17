@@ -1,12 +1,11 @@
 // GameState - main gameplay state with ship, asteroids, bullets, and collisions.
 import { Asteroid } from "./asteroid.js";
 import { Bullet } from "./bullet.js";
-import { Constants, Keys } from "./constants.js";
+import { Constants, IS_MOBILE, Keys } from "./constants.js";
 import { Explosion } from "./explosion.js";
 import { Ship } from "./ship.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
-import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 export class GameState extends State {
@@ -83,7 +82,7 @@ export class GameState extends State {
 		const endFire = (e) => {
 			clearInterval(self.fireTimer);
 			self.fireTimer = 0;
-			if (mobileAndTabletcheck()) {
+			if (IS_MOBILE) {
 				self.game.fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
 				e.preventDefault();
 			}
@@ -91,7 +90,7 @@ export class GameState extends State {
 
 		//touch Input
 		this.touchListeners = [];
-		if (mobileAndTabletcheck()) {
+		if (IS_MOBILE) {
 			const setupTouchButton = (button, onStart, onEnd) => {
 				const startHandler = (e) => {
 					if (onStart) onStart();
@@ -170,16 +169,13 @@ export class GameState extends State {
 	Update() {
 		if (this.pause) return;
 
-		// Cache canvas dimensions to avoid repeated property access
-		const canvasWidth = this.game.canvas.logicalWidth;
-		const canvasHeight = this.game.canvas.logicalHeight;
 		const frameTime = this.game.frameTime;
+		const canvas = this.game.canvas;
 
-		this.ship.Update(frameTime, this.game.input, canvasWidth, canvasHeight);
-		for (const key in this.bullets)
-			this.bullets[key].Update(frameTime, canvasWidth, canvasHeight);
+		this.ship.Update(frameTime, this.game.input, canvas);
+		for (const key in this.bullets) this.bullets[key].Update(frameTime, canvas);
 		for (const key in this.asteroids)
-			this.asteroids[key].Update(frameTime, null, canvasWidth, canvasHeight);
+			this.asteroids[key].Update(frameTime, canvas);
 		for (const key in this.explosions) this.explosions[key].Update(frameTime);
 
 		this.game.DoAsteroidColisions(this.asteroids);

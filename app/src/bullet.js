@@ -11,13 +11,13 @@ export class Bullet extends Entity {
 	}
 
 	// Updates bullet position and removes when lifetime expires.
-	Update(frametime, canvasWidth, canvasHeight) {
+	Update(frametime, canvas) {
 		// Update position
 		this.pos.Add(
 			this.dir.x * (Constants.BULLET_ACCELERATION * frametime),
 			this.dir.y * (Constants.BULLET_ACCELERATION * frametime),
 		);
-		this.CapOnScreen(canvasWidth, canvasHeight);
+		this.CapOnScreen(canvas.logicalWidth, canvas.logicalHeight);
 
 		// Update lifetime and remove if expands lifetime.
 		const lifetime = Date.now() - this.created;

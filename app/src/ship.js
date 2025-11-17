@@ -21,7 +21,7 @@ export class Ship extends Entity {
 	}
 
 	// Updates ship rotation, movement, and position based on input.
-	Update(frametime, input, canvasWidth, canvasHeight) {
+	Update(frametime, input, canvas) {
 		// Ship rotation
 		let rotation = 0;
 		if (input.IsDown(Keys.LEFT) || this.rotateLeft) {
@@ -50,7 +50,7 @@ export class Ship extends Entity {
 			this.showFlame = true;
 		}
 		this.pos.Add(this.velocity.x, this.velocity.y);
-		this.CapOnScreen(canvasWidth, canvasHeight);
+		this.CapOnScreen(canvas.logicalWidth, canvas.logicalHeight);
 	}
 
 	// Draws the ship and flame effect.

@@ -1,8 +1,7 @@
 // GameOverState - displays game over screen with final score.
-import { Constants, Keys } from "./constants.js";
+import { Constants, IS_MOBILE, Keys } from "./constants.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
-import { mobileAndTabletcheck } from "./utils.js";
 
 export class GameOverState extends State {
 	constructor(game) {
@@ -27,7 +26,7 @@ export class GameOverState extends State {
 		const continueGame = (e) => {
 			clearInterval(this.showPressSpace);
 			this.game.SetState(States.START);
-			if (mobileAndTabletcheck()) {
+			if (IS_MOBILE) {
 				this.game.canvas.element.removeEventListener(
 					"touchend",
 					continueGame,
@@ -37,7 +36,7 @@ export class GameOverState extends State {
 			}
 		};
 		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
-		if (mobileAndTabletcheck()) {
+		if (IS_MOBILE) {
 			this.game.canvas.element.addEventListener(
 				"touchend",
 				continueGame,

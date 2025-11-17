@@ -26,13 +26,13 @@ export class Asteroid extends Entity {
 	}
 
 	// Updates asteroid position and rotation.
-	Update(frametime, _input, canvasWidth, canvasHeight) {
+	Update(frametime, canvas) {
 		// Update position
 		this.pos.Add(
 			this.dir.x * (Constants.ASTEROID[this.type].ACCELERATION * frametime),
 			this.dir.y * (Constants.ASTEROID[this.type].ACCELERATION * frametime),
 		);
-		this.CapOnScreen(canvasWidth, canvasHeight);
+		this.CapOnScreen(canvas.logicalWidth, canvas.logicalHeight);
 
 		//Rotate the asteroid
 		for (let i = 0; i < this.points.length; i++) {

@@ -1,5 +1,5 @@
 import { Canvas } from "./canvas.js";
-import { Constants } from "./constants.js";
+import { Constants, IS_MOBILE } from "./constants.js";
 import { GameOverState } from "./gameoverstate.js";
 import { GameState } from "./gamestate.js";
 import { Input } from "./input.js";
@@ -7,7 +7,6 @@ import { NewWaveState } from "./newwavestate.js";
 import { Sound } from "./sound.js";
 import { StartState } from "./startstate.js";
 import { States } from "./states.js";
-import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 // Game - main class managing game loop, states, and overall game logic.
@@ -98,7 +97,7 @@ export class Game {
 		this.SetState(States.START);
 
 		//Pause game on phone
-		if (mobileAndTabletcheck()) {
+		if (IS_MOBILE) {
 			document.addEventListener(
 				"resume",
 				() => {
@@ -177,7 +176,7 @@ export class Game {
 
 	// Places and sizes mobile control buttons.
 	PlaceAndSizeButtons() {
-		if (!mobileAndTabletcheck()) return;
+		if (!IS_MOBILE) return;
 		const setButtons = (button, size, x, y) => {
 			button.style.left = `${Math.round(x)}px`;
 			button.style.top = `${Math.round(y)}px`;
@@ -220,7 +219,7 @@ export class Game {
 
 	// Shows or hides mobile control buttons.
 	ShowControlButtons(visible) {
-		if (!mobileAndTabletcheck()) return;
+		if (!IS_MOBILE) return;
 		const buttons = [this.forward, this.left, this.right, this.fire];
 		buttons.forEach((button) => {
 			button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
@@ -245,7 +244,10 @@ export class Game {
 					// Only process if actually colliding (already checked by IsColliding, but verify)
 					if (distSq < minDistSq) {
 						// Handle case where asteroids are on top of each other
-						const dist = distSq < 0.01 ? 0.1 : Math.sqrt(distSq);
+						const dist =
+							distSq < Constants.COLLISION.MIN_DISTANCE_SQ
+								? Constants.COLLISION.FALLBACK_DISTANCE
+								: Math.sqrt(distSq);
 						const invDist = 1 / dist;
 						const nx = dx * invDist;
 						const ny = dy * invDist;
@@ -254,7 +256,9 @@ export class Game {
 						// Only separate if they're overlapping
 						if (overlap > 0) {
 							// Push apart by overlap amount plus a small extra to prevent sticking
-							const pushAmount = (overlap + 1) * 0.5;
+							const pushAmount =
+								(overlap + Constants.COLLISION.SEPARATION_EXTRA) *
+								Constants.COLLISION.PUSH_FACTOR;
 							e1.pos.x -= nx * pushAmount;
 							e1.pos.y -= ny * pushAmount;
 							e2.pos.x += nx * pushAmount;
