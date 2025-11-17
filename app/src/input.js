@@ -1,16 +1,16 @@
 // Input handler - manages keyboard input and events.
 export class Input {
 	constructor() {
-		this.pressed = {};
-		this.upevents = [];
-		this.downevents = [];
+		this._pressed = {};
+		this._upevents = [];
+		this._downevents = [];
 		window.addEventListener(
 			"keyup",
 			(event) => {
 				const keyCode = event.keyCode;
-				delete this.pressed[keyCode];
-				for (const e of this.upevents) if (e.key === keyCode) e.event();
-				for (const e of this.downevents) if (e.pressed) e.pressed = false;
+				delete this._pressed[keyCode];
+				for (const e of this._upevents) if (e.key === keyCode) e.event();
+				for (const e of this._downevents) if (e.pressed) e.pressed = false;
 			},
 			false,
 		);
@@ -18,8 +18,8 @@ export class Input {
 			"keydown",
 			(event) => {
 				const keyCode = event.keyCode;
-				this.pressed[keyCode] = true;
-				for (const e of this.downevents) {
+				this._pressed[keyCode] = true;
+				for (const e of this._downevents) {
 					if (e.key === keyCode && !e.pressed) {
 						e.event();
 						e.pressed = true;
@@ -30,25 +30,25 @@ export class Input {
 		);
 	}
 
-	// Clears all input events and pressed keys.
+	// Public API: Clears all input events and pressed keys.
 	ClearInputEvents() {
-		this.pressed = {};
-		this.upevents = [];
-		this.downevents = [];
+		this._pressed = {};
+		this._upevents = [];
+		this._downevents = [];
 	}
 
-	// Adds a callback for when a key is pressed down.
+	// Public API: Adds a callback for when a key is pressed down.
 	AddKeyDownEvent(key, event) {
-		this.downevents.push({ key: key, event: event, pressed: false });
+		this._downevents.push({ key: key, event: event, pressed: false });
 	}
 
-	// Adds a callback for when a key is released.
+	// Public API: Adds a callback for when a key is released.
 	AddKeyUpEvent(key, event) {
-		this.upevents.push({ key: key, event: event });
+		this._upevents.push({ key: key, event: event });
 	}
 
-	// Checks if a key is currently pressed.
+	// Public API: Checks if a key is currently pressed.
 	IsDown(keyCode) {
-		return this.pressed[keyCode];
+		return this._pressed[keyCode];
 	}
 }

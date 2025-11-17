@@ -9,9 +9,9 @@ export class GameOverState extends State {
 		this.game.input.ClearInputEvents();
 		this.game.ShowControlButtons(false);
 
-		this.showPressSpace = true;
-		this.showPressSpaceTimer = setInterval(() => {
-			this.showPressSpace = !this.showPressSpace;
+		this._showPressSpace = true;
+		this._showPressSpaceTimer = setInterval(() => {
+			this._showPressSpace = !this._showPressSpace;
 		}, Constants.TIMERS.PRESS_SPACE_BLINK);
 
 		if (this.game.score > this.game.highscore) {
@@ -24,7 +24,7 @@ export class GameOverState extends State {
 		}
 
 		const continueGame = (e) => {
-			clearInterval(this.showPressSpace);
+			clearInterval(this._showPressSpaceTimer);
 			this.game.SetState(States.START);
 			if (IS_MOBILE) {
 				this.game.canvas.element.removeEventListener(
@@ -82,7 +82,7 @@ export class GameOverState extends State {
 			"center",
 			false,
 		);
-		if (this.showPressSpace)
+		if (this._showPressSpace)
 			this.game.canvas.DrawText(
 				Constants.CONTINUE_TEXT,
 				centerX,

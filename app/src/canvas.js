@@ -9,16 +9,16 @@ export class Canvas {
 		}
 		this.context = this.element.getContext("2d");
 		// Base logical dimensions (used as reference for area calculation)
-		this.baseLogicalWidth = width;
-		this.baseLogicalHeight = height;
+		this._baseLogicalWidth = width;
+		this._baseLogicalHeight = height;
 		// Dynamic logical dimensions (adapt to screen aspect ratio)
 		this.logicalWidth = width;
 		this.logicalHeight = height;
 		// Actual display dimensions
 		this.width = width;
 		this.height = height;
-		this.scaleX = 1;
-		this.scaleY = 1;
+		this._scaleX = 1;
+		this._scaleY = 1;
 		this.context.canvas.width = width;
 		this.context.canvas.height = height;
 	}
@@ -32,7 +32,7 @@ export class Canvas {
 		const screenAspectRatio = newWidth / newHeight;
 
 		// Calculate base area to maintain roughly consistent gameplay area
-		const baseArea = this.baseLogicalWidth * this.baseLogicalHeight;
+		const baseArea = this._baseLogicalWidth * this._baseLogicalHeight;
 
 		// Adjust logical dimensions to match screen aspect ratio while maintaining similar area
 		// logicalWidth / logicalHeight = screenAspectRatio
@@ -43,8 +43,8 @@ export class Canvas {
 		this.logicalWidth = this.logicalHeight * screenAspectRatio;
 
 		// Calculate uniform scale (no stretching - scaleX = scaleY)
-		this.scaleX = newWidth / this.logicalWidth;
-		this.scaleY = newHeight / this.logicalHeight;
+		this._scaleX = newWidth / this.logicalWidth;
+		this._scaleY = newHeight / this.logicalHeight;
 
 		// Use full window dimensions (no letterboxing)
 		this.width = newWidth;
@@ -68,8 +68,8 @@ export class Canvas {
 		// Scale based on the smaller dimension to ensure text fits on all screens
 		const minDimension = Math.min(this.width, this.height);
 		const baseDimension = Math.min(
-			this.baseLogicalWidth,
-			this.baseLogicalHeight,
+			this._baseLogicalWidth,
+			this._baseLogicalHeight,
 		);
 		const scaleFactor = minDimension / baseDimension;
 		return baseSize * scaleFactor;
@@ -110,8 +110,8 @@ export class Canvas {
 	GetUIBoxDimensions() {
 		// Scale based on the smaller dimension to maintain aspect ratio
 		const scaleFactor = Math.min(
-			this.width / this.baseLogicalWidth,
-			this.height / this.baseLogicalHeight,
+			this.width / this._baseLogicalWidth,
+			this.height / this._baseLogicalHeight,
 		);
 		// Calculate base dimensions scaled to screen
 		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * scaleFactor;
@@ -144,11 +144,11 @@ export class Canvas {
 		// Use responsive scaling for better text sizing across different screens
 		const fontSize = responsive
 			? this.GetResponsiveFontSize(s)
-			: s * this.scaleX;
+			: s * this._scaleX;
 		this.context.font = `bold ${fontSize}px GameFont`;
 		// Center text horizontally if center-aligned
-		const drawX = a === "center" ? x * this.scaleX : x * this.scaleX;
-		this.context.fillText(t, drawX, y * this.scaleX);
+		const drawX = a === "center" ? x * this._scaleX : x * this._scaleX;
+		this.context.fillText(t, drawX, y * this._scaleX);
 	}
 
 	// Draws a rectangle with optional stroke.
@@ -156,15 +156,15 @@ export class Canvas {
 		this.context.beginPath();
 		this.context.fillStyle = fs;
 		this.context.rect(
-			x * this.scaleX,
-			y * this.scaleX,
-			w * this.scaleX,
-			h * this.scaleX,
+			x * this._scaleX,
+			y * this._scaleX,
+			w * this._scaleX,
+			h * this._scaleX,
 		);
 		this.context.fill();
 
 		if (lw !== undefined && ss !== undefined) {
-			this.context.lineWidth = lw * this.scaleX;
+			this.context.lineWidth = lw * this._scaleX;
 			this.context.strokeStyle = ss;
 			this.context.stroke();
 		}
@@ -173,21 +173,21 @@ export class Canvas {
 	// Draws a polyline - used for ships, asteroids, and vector graphics.
 	DrawPolyLine(data, x, y, s) {
 		this.context.strokeStyle = "#ffffff";
-		this.context.lineWidth = 2 * this.scaleX;
+		this.context.lineWidth = 2 * this._scaleX;
 		this.context.beginPath();
 		this.context.moveTo(
-			(x + data[0].x * s) * this.scaleX,
-			(y + data[0].y * s) * this.scaleX,
+			(x + data[0].x * s) * this._scaleX,
+			(y + data[0].y * s) * this._scaleX,
 		);
 		for (let i = 1; i < data.length; i++) {
 			this.context.lineTo(
-				(x + data[i].x * s) * this.scaleX,
-				(y + data[i].y * s) * this.scaleX,
+				(x + data[i].x * s) * this._scaleX,
+				(y + data[i].y * s) * this._scaleX,
 			);
 		}
 		this.context.lineTo(
-			(x + data[0].x * s) * this.scaleX,
-			(y + data[0].y * s) * this.scaleX,
+			(x + data[0].x * s) * this._scaleX,
+			(y + data[0].y * s) * this._scaleX,
 		);
 		this.context.stroke();
 	}

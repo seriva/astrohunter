@@ -7,18 +7,18 @@ export class Explosion extends Entity {
 	constructor(id, x, y, particlecount, lifetime, vibrate) {
 		super(id);
 		this.pos.Set(x, y);
-		this.lifetime = lifetime;
-		this.points = [];
-		this.dirs = [];
+		this._lifetime = lifetime;
+		this._points = [];
+		this._dirs = [];
 
 		for (let i = 0; i < particlecount; i++) {
-			this.points.push(new Vector(0, 0));
+			this._points.push(new Vector(0, 0));
 			const dir = new Vector(
 				0,
 				1 * (Math.random() * Constants.EXPLOSION_ACCELERATION),
 			);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
-			this.dirs.push(dir);
+			this._dirs.push(dir);
 		}
 
 		if (IS_MOBILE && vibrate > 0) {
@@ -29,26 +29,26 @@ export class Explosion extends Entity {
 	// Updates explosion particles and removes when lifetime expires.
 	Update(frametime) {
 		// Animate particles
-		for (let i = 0; i < this.points.length; i++) {
-			this.points[i].Add(
-				this.dirs[i].x * frametime,
-				this.dirs[i].y * frametime,
+		for (let i = 0; i < this._points.length; i++) {
+			this._points[i].Add(
+				this._dirs[i].x * frametime,
+				this._dirs[i].y * frametime,
 			);
 		}
 
 		// Update lifetime and remove if expands lifetime
 		const delta = Date.now() - this.created;
-		if (delta > this.lifetime) {
+		if (delta > this._lifetime) {
 			this.OnDestroy();
 		}
 	}
 
 	// Draws explosion particles as small white rectangles.
 	Draw(canvas) {
-		for (let i = 0; i < this.points.length; i++) {
+		for (let i = 0; i < this._points.length; i++) {
 			canvas.DrawRect(
-				this.pos.x + this.points[i].x - 2,
-				this.pos.y + this.points[i].y - 2,
+				this.pos.x + this._points[i].x - 2,
+				this.pos.y + this._points[i].y - 2,
 				Constants.EXPLOSION_PART_RADIUS,
 				Constants.EXPLOSION_PART_RADIUS,
 				"#ffffff",

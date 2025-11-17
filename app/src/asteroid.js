@@ -8,20 +8,22 @@ export class Asteroid extends Entity {
 		super(id);
 		this.pos.Set(x, y);
 		this.dir.Set(dirx, diry);
-		this.type = type;
-		this.rotationSpeed = (-0.5 + Math.random()) / 5;
+		this._type = type;
+		this._rotationSpeed = (-0.5 + Math.random()) / 5;
 		this.radius = Constants.ASTEROID[type].RADIUS;
 		this.hits = Constants.ASTEROID[type].HITS;
-		this.points = [];
+		this._points = [];
 		const step =
-			Constants.MATH.FULL_CIRCLE_DEG / Constants.ASTEROID[type].POINTCOUNT;
-		for (let i = 0; i < Constants.ASTEROID[type].POINTCOUNT; i++) {
+			Constants.MATH.FULL_CIRCLE_DEG /
+			Constants.ASTEROID[this._type].POINTCOUNT;
+		for (let i = 0; i < Constants.ASTEROID[this._type].POINTCOUNT; i++) {
 			let size =
-				Constants.ASTEROID[type].RADIUS - Constants.ASTEROID[type].RADIUS * 0.1;
-			size = size + Math.random() * Constants.ASTEROID[type].RADIUS * 0.2;
+				Constants.ASTEROID[this._type].RADIUS -
+				Constants.ASTEROID[this._type].RADIUS * 0.1;
+			size = size + Math.random() * Constants.ASTEROID[this._type].RADIUS * 0.2;
 			const point = new Vector(size, 0);
 			point.Rotate(i * step);
-			this.points.push(point);
+			this._points.push(point);
 		}
 	}
 
@@ -29,19 +31,19 @@ export class Asteroid extends Entity {
 	Update(frametime, canvas) {
 		// Update position
 		this.pos.Add(
-			this.dir.x * (Constants.ASTEROID[this.type].ACCELERATION * frametime),
-			this.dir.y * (Constants.ASTEROID[this.type].ACCELERATION * frametime),
+			this.dir.x * (Constants.ASTEROID[this._type].ACCELERATION * frametime),
+			this.dir.y * (Constants.ASTEROID[this._type].ACCELERATION * frametime),
 		);
 		this.CapOnScreen(canvas.logicalWidth, canvas.logicalHeight);
 
 		//Rotate the asteroid
-		for (let i = 0; i < this.points.length; i++) {
-			this.points[i].Rotate(this.rotationSpeed * frametime);
+		for (let i = 0; i < this._points.length; i++) {
+			this._points[i].Rotate(this._rotationSpeed * frametime);
 		}
 	}
 
 	// Draws the asteroid as a polyline shape.
 	Draw(canvas) {
-		canvas.DrawPolyLine(this.points, this.pos.x, this.pos.y, 1);
+		canvas.DrawPolyLine(this._points, this.pos.x, this.pos.y, 1);
 	}
 }

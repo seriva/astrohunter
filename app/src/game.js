@@ -79,8 +79,8 @@ export class Game {
 
 		//Vars
 		this.state = States.START;
-		this.time = undefined;
-		this.currentState = null;
+		this._time = undefined;
+		this._currentState = null;
 		this.frameTime = 0;
 		this.score = 0;
 		this.ships = Constants.SHIPS;
@@ -103,7 +103,7 @@ export class Game {
 				() => {
 					music.play();
 					if (this.state === States.GAME) {
-						this.currentState.pause = false;
+						this._currentState.pause = false;
 					}
 				},
 				false,
@@ -113,7 +113,7 @@ export class Game {
 				() => {
 					music.pause();
 					if (this.state === States.GAME) {
-						this.currentState.pause = true;
+						this._currentState.pause = true;
 					}
 				},
 				false,
@@ -127,15 +127,15 @@ export class Game {
 			// Timing
 			const now = currenttime;
 			this.frameTime = Math.min(
-				now - (this.time || now),
+				now - (this._time || now),
 				Constants.MATH.FRAME_TIME_MAX,
 			);
-			this.time = now;
+			this._time = now;
 
 			// Run the current state
-			if (this.currentState != null) {
+			if (this._currentState != null) {
 				// Update state
-				this.currentState.Update();
+				this._currentState.Update();
 
 				// Draw state (use logical dimensions for background)
 				this.canvas.DrawRect(
@@ -145,7 +145,7 @@ export class Game {
 					this.canvas.logicalHeight,
 					"#000000",
 				);
-				this.currentState.Draw();
+				this._currentState.Draw();
 			}
 
 			// Trigger new loop
@@ -154,22 +154,22 @@ export class Game {
 		window.requestAnimationFrame(GameLoop);
 	}
 
-	// Switches to a different game state.
+	// Public API: Switches to a different game state.
 	SetState(state) {
 		this.state = state;
-		delete this.currentState;
+		delete this._currentState;
 		switch (state) {
 			case States.START:
-				this.currentState = new StartState(this);
-				break;
-			case States.GAMEOVER:
-				this.currentState = new GameOverState(this);
-				break;
-			case States.NEWWAVE:
-				this.currentState = new NewWaveState(this);
+				this._currentState = new StartState(this);
 				break;
 			case States.GAME:
-				this.currentState = new GameState(this);
+				this._currentState = new GameState(this);
+				break;
+			case States.NEWWAVE:
+				this._currentState = new NewWaveState(this);
+				break;
+			case States.GAMEOVER:
+				this._currentState = new GameOverState(this);
 				break;
 		}
 	}

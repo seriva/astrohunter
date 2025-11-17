@@ -9,12 +9,12 @@ export class NewWaveState extends State {
 		this.game.input.ClearInputEvents();
 		this.game.ShowControlButtons(false);
 
-		this.countDown = Constants.MATH.MAX_ASTEROID_TYPE;
+		this._countDown = Constants.MATH.MAX_ASTEROID_TYPE;
 		this.game.asteroidCount = this.game.asteroidCount + Constants.WAVE_INC;
-		this.newWaveTimer = setInterval(() => {
-			this.countDown--;
-			if (this.countDown === 0) {
-				clearInterval(this.newWaveTimer);
+		this._newWaveTimer = setInterval(() => {
+			this._countDown--;
+			if (this._countDown === 0) {
+				clearInterval(this._newWaveTimer);
 				this.game.SetState(States.GAME);
 			}
 		}, Constants.TIMERS.WAVE_COUNTDOWN);
@@ -45,7 +45,7 @@ export class NewWaveState extends State {
 			false,
 		);
 		this.game.canvas.DrawText(
-			`${this.countDown}`,
+			`${this._countDown}`,
 			centerX,
 			centerY + Constants.TEXT_OFFSET.SMALL_OFFSET_POS * offsetScale,
 			textSize,
