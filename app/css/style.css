@@ -18,6 +18,10 @@ html, body {
    top:   50%;
 	 padding:0;
    margin:0;
+   touch-action: none;
+   -webkit-touch-callout: none;
+   -webkit-user-select: none;
+   user-select: none;
 }
 
 .button {

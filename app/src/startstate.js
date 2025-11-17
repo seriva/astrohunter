@@ -39,7 +39,12 @@ export class StartState extends State {
 		const continueGame = (e) => {
 			clearInterval(this._showPressSpaceTimer);
 			this.game.SetState(States.GAME);
-			if (IS_MOBILE) {
+			if (IS_MOBILE && e) {
+				this.game.canvas.element.removeEventListener(
+					"touchstart",
+					continueGame,
+					false,
+				);
 				this.game.canvas.element.removeEventListener(
 					"touchend",
 					continueGame,
@@ -50,6 +55,11 @@ export class StartState extends State {
 		};
 		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
 		if (IS_MOBILE) {
+			this.game.canvas.element.addEventListener(
+				"touchstart",
+				continueGame,
+				false,
+			);
 			this.game.canvas.element.addEventListener(
 				"touchend",
 				continueGame,

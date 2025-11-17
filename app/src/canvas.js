@@ -1,5 +1,21 @@
 // Canvas - handles all rendering with dynamic scaling to fill screen.
-import { Constants } from "./constants.js";
+import { Constants, IS_MOBILE } from "./constants.js";
+
+// Mobile-specific scaling constants
+const MOBILE_SCALE = {
+	BOX_MULTIPLIER: 1.5,
+	BOX_WIDTH_RATIO: 0.9,
+	BOX_HEIGHT_RATIO: 0.6,
+	FONT_HEIGHT_MULTIPLIER: 0.75,
+	FONT_MIN_MULTIPLIER: 1.2,
+};
+
+const DESKTOP_SCALE = {
+	BOX_WIDTH_RATIO: Constants.UI.BOX_WIDTH_RATIO,
+	BOX_HEIGHT_RATIO: Constants.UI.BOX_HEIGHT_RATIO,
+	FONT_HEIGHT_MULTIPLIER: 0.25,
+	FONT_MIN_MULTIPLIER: 0.5,
+};
 
 export class Canvas {
 	constructor(id, width, height) {
@@ -8,13 +24,10 @@ export class Canvas {
 			throw new Error(`Canvas element with id "${id}" not found`);
 		}
 		this.context = this.element.getContext("2d");
-		// Base logical dimensions (used as reference for area calculation)
 		this._baseLogicalWidth = width;
 		this._baseLogicalHeight = height;
-		// Dynamic logical dimensions (adapt to screen aspect ratio)
 		this.logicalWidth = width;
 		this.logicalHeight = height;
-		// Actual display dimensions
 		this.width = width;
 		this.height = height;
 		this._scaleX = 1;
@@ -77,24 +90,16 @@ export class Canvas {
 
 	// Calculates font size that fits within a box of given dimensions.
 	GetFontSizeForBox(boxWidth, boxHeight, baseFontSize, padding = 0.15) {
+		const scale = IS_MOBILE ? MOBILE_SCALE : DESKTOP_SCALE;
 		const availableWidth = boxWidth * (1 - padding * 2);
 		const availableHeight = boxHeight * (1 - padding * 2);
-		// Calculate size based on height (primary constraint for vertical text)
-		const heightBasedSize = availableHeight * 0.22;
-		// Also consider width to prevent text from being too wide
-		// Estimate: average character width is about 0.6 * font size
-		// Typical text length is ~15-25 chars, use 20 as average
-		const avgCharWidth = 0.6;
-		const estimatedChars = 20;
-		const widthBasedSize = (availableWidth / estimatedChars) * avgCharWidth;
-		// Use the smaller constraint to ensure text fits both dimensions
+		const heightBasedSize = availableHeight * scale.FONT_HEIGHT_MULTIPLIER;
+		const widthBasedSize = (availableWidth / 20) * 0.6; // 20 chars avg, 0.6 char width ratio
 		const boxConstrainedSize = Math.min(heightBasedSize, widthBasedSize);
-		// Scale base size to current screen
 		const responsiveSize = this.GetResponsiveFontSize(baseFontSize);
-		// Use smaller of box constraint or responsive size, but ensure minimum readability
 		return Math.max(
 			Math.min(boxConstrainedSize, responsiveSize),
-			responsiveSize * 0.5,
+			responsiveSize * scale.FONT_MIN_MULTIPLIER,
 		);
 	}
 
@@ -108,17 +113,16 @@ export class Canvas {
 
 	// Gets the UI box dimensions scaled to screen size.
 	GetUIBoxDimensions() {
-		// Scale based on the smaller dimension to maintain aspect ratio
-		const scaleFactor = Math.min(
-			this.width / this._baseLogicalWidth,
-			this.height / this._baseLogicalHeight,
-		);
-		// Calculate base dimensions scaled to screen
+		const scale = IS_MOBILE ? MOBILE_SCALE : DESKTOP_SCALE;
+		const widthScale = this.width / this._baseLogicalWidth;
+		const heightScale = this.height / this._baseLogicalHeight;
+		const scaleFactor = IS_MOBILE
+			? (widthScale + heightScale) * 0.5 * MOBILE_SCALE.BOX_MULTIPLIER
+			: Math.min(widthScale, heightScale);
 		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * scaleFactor;
 		const scaledHeight = Constants.UI.BOX_HEIGHT_MAX * scaleFactor;
-		// Ensure box doesn't exceed logical dimensions (with some margin)
-		const maxWidth = this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO;
-		const maxHeight = this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO;
+		const maxWidth = this.logicalWidth * scale.BOX_WIDTH_RATIO;
+		const maxHeight = this.logicalHeight * scale.BOX_HEIGHT_RATIO;
 		return {
 			width: Math.min(scaledWidth, maxWidth),
 			height: Math.min(scaledHeight, maxHeight),
@@ -139,16 +143,12 @@ export class Canvas {
 	DrawText(t, x, y, s, a, responsive = true) {
 		this.context.fillStyle = "#ffffff";
 		this.context.textAlign = a;
-		// Use "top" baseline for left/right aligned text, "middle" for center-aligned
 		this.context.textBaseline = a === "center" ? "middle" : "top";
-		// Use responsive scaling for better text sizing across different screens
 		const fontSize = responsive
 			? this.GetResponsiveFontSize(s)
 			: s * this._scaleX;
 		this.context.font = `bold ${fontSize}px GameFont`;
-		// Center text horizontally if center-aligned
-		const drawX = a === "center" ? x * this._scaleX : x * this._scaleX;
-		this.context.fillText(t, drawX, y * this._scaleX);
+		this.context.fillText(t, x * this._scaleX, y * this._scaleX);
 	}
 
 	// Draws a rectangle with optional stroke.

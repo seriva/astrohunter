@@ -101,7 +101,7 @@ export class GameState extends State {
 				};
 				button.addEventListener("touchstart", startHandler, false);
 				button.addEventListener("touchend", endHandler, false);
-				this.touchListeners.push(
+				this._touchListeners.push(
 					{ button, type: "touchstart", handler: startHandler },
 					{ button, type: "touchend", handler: endHandler },
 				);
