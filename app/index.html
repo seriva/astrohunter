@@ -45,55 +45,7 @@
 	<div id="right" class='button right'> </div>
 	<div id="fire" class='button fire'> </div>
 
-	<script type="module">
-		// Import main.js which initializes and runs the game
-		import './src/main.js';
-
-		// Register Service Worker for PWA
-		if ('serviceWorker' in navigator) {
-			window.addEventListener('load', () => {
-				// Use relative path for GitHub Pages compatibility
-				const swPath = './sw.js';
-				navigator.serviceWorker.register(swPath)
-					.then((registration) => {
-						console.log('SW registered: ', registration);
-						
-						// Check for updates
-						registration.addEventListener('updatefound', () => {
-							const newWorker = registration.installing;
-							newWorker.addEventListener('statechange', () => {
-								if (newWorker.state === 'installed' && navigator.serviceWorker.controller) {
-									// New service worker available
-									if (confirm('New version available! Reload to update?')) {
-										newWorker.postMessage({ action: 'skipWaiting' });
-										window.location.reload();
-									}
-								}
-							});
-						});
-					})
-					.catch((registrationError) => {
-						console.log('SW registration failed: ', registrationError);
-					});
-
-				// Listen for service worker updates
-				let refreshing = false;
-				navigator.serviceWorker.addEventListener('controllerchange', () => {
-					if (!refreshing) {
-						refreshing = true;
-						window.location.reload();
-					}
-				});
-			});
-		}
-
-		// disable scrolling by any of the keys.
-		window.addEventListener("keydown", function(e) {
-					// space and arrow keys
-					if([32, 37, 38, 39, 40].indexOf(e.keyCode) > -1) {
-							e.preventDefault();
-					}
-		}, false);
-	</script>
+	<!-- Game initialization -->
+	<script type="module" src="src/main.js"></script>
 </body>
 </html>
