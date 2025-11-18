@@ -4,6 +4,7 @@ import { GameOverState } from "./gameoverstate.js";
 import { GameState } from "./gamestate.js";
 import { Input } from "./input.js";
 import { NewWaveState } from "./newwavestate.js";
+import { ScoreManager } from "./scoremanager.js";
 import { Sound } from "./sound.js";
 import { StartState } from "./startstate.js";
 import { States } from "./states.js";
@@ -41,14 +42,6 @@ export class Game {
 		//Input
 		this.input = new Input();
 
-		// Get button references from UIManager
-		if (IS_MOBILE) {
-			this.forward = this.uiManager.forward;
-			this.left = this.uiManager.left;
-			this.right = this.uiManager.right;
-			this.fire = this.uiManager.fire;
-		}
-
 		// Initial button placement
 		this.uiManager.PlaceAndSizeButtons();
 
@@ -84,21 +77,14 @@ export class Game {
 		this.sound.CacheSound("fire", "sounds/fire.ogg", 1, 0.2, true);
 		this.sound.CacheSound("explosion", "sounds/explosion.ogg", 1, 0.5, true);
 
+		// Score management
+		this.scoreManager = new ScoreManager();
+
 		//Vars
 		this.state = States.START;
 		this._time = undefined;
 		this._currentState = null;
 		this.frameTime = 0;
-		this.score = 0;
-		this.ships = Constants.SHIPS;
-		this.asteroidCount = Constants.WAVE_START;
-
-		//Get highscore with error handling
-		try {
-			this.highscore = parseInt(localStorage.highscore, 10) || 0;
-		} catch (_e) {
-			this.highscore = 0;
-		}
 
 		// Set the start state
 		this.SetState(States.START);
@@ -109,8 +95,8 @@ export class Game {
 				"resume",
 				() => {
 					music.play();
-					if (this.state === States.GAME) {
-						this._currentState._pause = false;
+					if (this.state === States.GAME && this._currentState?.IsPaused?.()) {
+						this._currentState.TogglePause();
 					}
 				},
 				false,
@@ -119,8 +105,8 @@ export class Game {
 				"pause",
 				() => {
 					music.pause();
-					if (this.state === States.GAME) {
-						this._currentState._pause = true;
+					if (this.state === States.GAME && !this._currentState?.IsPaused?.()) {
+						this._currentState.TogglePause();
 					}
 				},
 				false,
@@ -141,8 +127,12 @@ export class Game {
 
 			// Run the current state
 			if (this._currentState != null) {
+				// Cache canvas dimensions for this frame
+				const canvasWidth = this.canvas.logicalWidth;
+				const canvasHeight = this.canvas.logicalHeight;
+
 				// Update state
-				this._currentState.Update();
+				this._currentState.Update(this.frameTime, canvasWidth, canvasHeight);
 
 				// Draw state (use logical dimensions for background)
 				this.canvas.DrawRect(
@@ -187,11 +177,6 @@ export class Game {
 
 		// Initialize new state
 		this._currentState?.Enter();
-	}
-
-	// Shows or hides mobile control buttons.
-	ShowControlButtons(visible) {
-		this.uiManager.ShowControlButtons(visible);
 	}
 
 	// Handles collisions between asteroids (bouncing them apart).

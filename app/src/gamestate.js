@@ -12,12 +12,20 @@ export class GameState extends State {
 	constructor(game) {
 		super(game);
 		const self = this;
-		this.game.input.ClearInputEvents();
-		this.game.ShowControlButtons(true);
+		this.input.ClearInputEvents();
+		this.uiManager.ShowControlButtons(true);
+
+		// Get button references for mobile controls
+		if (IS_MOBILE) {
+			this._forward = this.uiManager.forward;
+			this._left = this.uiManager.left;
+			this._right = this.uiManager.right;
+			this._fire = this.uiManager.fire;
+		}
 
 		// Vars.
-		const centerX = this.game.canvas.GetCenterX();
-		const centerY = this.game.canvas.GetCenterY();
+		const centerX = this.canvas.GetCenterX();
+		const centerY = this.canvas.GetCenterY();
 		this._ship = new Ship("ship", centerX, centerY);
 		this._ship.ResetShip(centerX, centerY);
 		this._fireTimer = 0;
@@ -30,9 +38,9 @@ export class GameState extends State {
 		this._pause = false;
 
 		// Create the asteroids
-		const canvasWidth = this.game.canvas.logicalWidth;
-		const canvasHeight = this.game.canvas.logicalHeight;
-		for (let i = 0; i < this.game.asteroidCount; i++) {
+		const canvasWidth = this.canvas.logicalWidth;
+		const canvasHeight = this.canvas.logicalHeight;
+		for (let i = 0; i < this.scoreManager.asteroidCount; i++) {
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
 			const id = this._asteroidCounter++;
@@ -68,15 +76,15 @@ export class GameState extends State {
 						self._bullets.delete(this.id);
 					};
 					self._bullets.set(id, bullet);
-					self.game.sound.PlaySound("fire");
+					self.sound.PlaySound("fire");
 				};
 				self._fireTimer = setInterval(() => {
 					FireBullet();
 				}, Constants.BULLET_FIRESPEED);
 				FireBullet();
 			}
-			if (mobileAndTabletcheck()) {
-				self.game.fire.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
+			if (IS_MOBILE) {
+				self._fire.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
 				e.preventDefault();
 			}
 		};
@@ -84,7 +92,7 @@ export class GameState extends State {
 			clearInterval(self._fireTimer);
 			self._fireTimer = 0;
 			if (IS_MOBILE) {
-				self.game.fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
+				self._fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
 				e.preventDefault();
 			}
 		};
@@ -111,7 +119,7 @@ export class GameState extends State {
 				);
 			};
 			setupTouchButton(
-				this.game.left,
+				this._left,
 				() => {
 					this._ship.rotateLeft = true;
 				},
@@ -120,7 +128,7 @@ export class GameState extends State {
 				},
 			);
 			setupTouchButton(
-				this.game.right,
+				this._right,
 				() => {
 					this._ship.rotateRight = true;
 				},
@@ -129,7 +137,7 @@ export class GameState extends State {
 				},
 			);
 			setupTouchButton(
-				this.game.forward,
+				this._forward,
 				() => {
 					this._ship.moveForward = true;
 				},
@@ -137,46 +145,46 @@ export class GameState extends State {
 					this._ship.moveForward = false;
 				},
 			);
-			this.game.fire.addEventListener("touchstart", startFire, false);
-			this.game.fire.addEventListener("touchend", endFire, false);
+			this._fire.addEventListener("touchstart", startFire, false);
+			this._fire.addEventListener("touchend", endFire, false);
 			this._touchListeners.push(
-				{ button: this.game.fire, type: "touchstart", handler: startFire },
-				{ button: this.game.fire, type: "touchend", handler: endFire },
+				{ button: this._fire, type: "touchstart", handler: startFire },
+				{ button: this._fire, type: "touchend", handler: endFire },
 			);
 		}
 
 		// Key input events
-		this.game.input.AddKeyDownEvent(Keys.SPACE, startFire);
-		this.game.input.AddKeyUpEvent(Keys.SPACE, endFire);
+		this.input.AddKeyDownEvent(Keys.SPACE, startFire);
+		this.input.AddKeyUpEvent(Keys.SPACE, endFire);
 		const togglePause = () => {
 			this._pause = !this._pause;
 		};
-		this.game.input.AddKeyDownEvent(Keys.P, togglePause);
+		this.input.AddKeyDownEvent(Keys.P, togglePause);
 
 		// Mobile: tap HUD area (top 60px) to pause
 		if (IS_MOBILE) {
 			this._hudTapHandler = (e) => {
 				const touch = e.touches[0] || e.changedTouches[0];
-				const rect = this.game.canvas.element.getBoundingClientRect();
+				const rect = this.canvas.element.getBoundingClientRect();
 				const y = touch.clientY - rect.top;
 				// Check if tap is in HUD area (top 60 scaled pixels)
-				if (y < 60 * this.game.canvas._scale) {
+				if (y < 60 * this.canvas._scale) {
 					togglePause();
 					e.preventDefault();
 				}
 			};
-			this.game.canvas.element.addEventListener(
+			this.canvas.element.addEventListener(
 				"touchstart",
 				this._hudTapHandler,
 				false,
 			);
 			this._touchListeners.push({
-				button: this.game.canvas.element,
+				button: this.canvas.element,
 				type: "touchstart",
 				handler: this._hudTapHandler,
 			});
 		}
-		this.game.input.AddKeyDownEvent(Keys.ESCAPE, togglePause);
+		this.input.AddKeyDownEvent(Keys.ESCAPE, togglePause);
 	}
 
 	// Called when leaving this state - cleanup resources
@@ -190,16 +198,21 @@ export class GameState extends State {
 		}
 	}
 
+	// Public API: Toggle pause state
+	TogglePause() {
+		this._pause = !this._pause;
+	}
+
+	// Public API: Check if game is paused
+	IsPaused() {
+		return this._pause;
+	}
+
 	// Updates all game entities and handles collisions.
-	Update() {
+	Update(frameTime, canvasWidth, canvasHeight) {
 		if (this._pause) return;
 
-		const frameTime = this.game.frameTime;
-		const canvas = this.game.canvas;
-		const canvasWidth = canvas.logicalWidth;
-		const canvasHeight = canvas.logicalHeight;
-
-		this._ship.Update(frameTime, this.game.input, canvasWidth, canvasHeight);
+		this._ship.Update(frameTime, this.input, canvasWidth, canvasHeight);
 		for (const bullet of this._bullets.values()) {
 			bullet.Update(frameTime, canvasWidth, canvasHeight);
 		}
@@ -217,22 +230,22 @@ export class GameState extends State {
 
 	// Draws all game entities and UI elements.
 	Draw() {
-		this._ship.Draw(this.game.canvas);
+		this._ship.Draw(this.canvas);
 		for (const bullet of this._bullets.values()) {
-			bullet.Draw(this.game.canvas);
+			bullet.Draw(this.canvas);
 		}
 		for (const asteroid of this._asteroids.values()) {
-			asteroid.Draw(this.game.canvas);
+			asteroid.Draw(this.canvas);
 		}
 		for (const explosion of this._explosions.values()) {
-			explosion.Draw(this.game.canvas);
+			explosion.Draw(this.canvas);
 		}
 
 		// Align stats to top-left corner
 		const margin = Constants.UI.TOP_MARGIN;
 		// Draw score (just the number) on the left
-		this.game.canvas.DrawText(
-			`${this.game.score}`,
+		this.canvas.DrawText(
+			`${this.scoreManager.score}`,
 			margin,
 			margin,
 			Constants.UI.HUD_SCORE_SIZE,
@@ -252,19 +265,20 @@ export class GameState extends State {
 		];
 
 		// Position ships from right, remove from left to right
-		const canvasWidth = this.game.canvas.logicalWidth;
+		const canvasWidth = this.canvas.logicalWidth;
 		const shipWidth = 13 * shipIconSize; // Half-width of ship scaled
 		const shipHeight = 18 * shipIconSize; // Top point of ship scaled
 		const totalShipsWidth = (maxShips - 1) * shipSpacing;
 		const startX = canvasWidth - margin - totalShipsWidth - shipWidth;
 
-		for (let i = 0; i < this.game.ships; i++) {
-			const shipX = startX + (maxShips - this.game.ships + i) * shipSpacing;
+		for (let i = 0; i < this.scoreManager.ships; i++) {
+			const shipX =
+				startX + (maxShips - this.scoreManager.ships + i) * shipSpacing;
 			const shipY = margin + shipHeight; // Add ship height so top isn't cut off
-			this.game.canvas.DrawPolyLine(shipIcon, shipX, shipY, shipIconSize);
+			this.canvas.DrawPolyLine(shipIcon, shipX, shipY, shipIconSize);
 		}
 
-		if (this._pause) this.game.canvas.DrawUIBox(["pause"]);
+		if (this._pause) this.canvas.DrawUIBox(["pause"]);
 	}
 
 	// Private: Handles collision between ship and asteroids.
@@ -279,16 +293,13 @@ export class GameState extends State {
 				Constants.EXPLOSION.SHIP.lifetime,
 				Constants.EXPLOSION.SHIP.vibrate,
 			);
-			this.game.sound.PlaySound("explosion");
+			this.sound.PlaySound("explosion");
 			this._BreakupAsteroid(a);
-			if (--this.game.ships === 0) {
+			if (this.scoreManager.LoseShip()) {
 				this.game.SetState(States.GAMEOVER);
 				return;
 			}
-			this._ship.ResetShip(
-				this.game.canvas.GetCenterX(),
-				this.game.canvas.GetCenterY(),
-			);
+			this._ship.ResetShip(this.canvas.GetCenterX(), this.canvas.GetCenterY());
 			return;
 		}
 	}

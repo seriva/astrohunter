@@ -1,7 +1,7 @@
 // Sound manager - handles audio playback and caching.
 export class Sound {
 	constructor() {
-		this._soundCache = {};
+		this._soundCache = new Map();
 		this._cacheSize = 5;
 	}
 
@@ -25,27 +25,30 @@ export class Sound {
 
 	// Public API: Caches multiple instances of a sound for overlapping playback.
 	CacheSound(id, file, speed, volume) {
-		if (!this._soundCache[`${id}_0`]) {
+		if (!this._soundCache.has(id)) {
+			const sounds = [];
 			for (let i = 0; i < this._cacheSize; i++) {
-				const sound = this._loadSound(file, speed, volume);
-				this._soundCache[`${id}_${i}`] = sound;
+				sounds.push(this._loadSound(file, speed, volume));
 			}
+			this._soundCache.set(id, sounds);
 		}
 	}
 
 	// Public API: Plays a cached sound effect.
 	PlaySound(id) {
-		if (this._soundCache[`${id}_0`]) {
-			let itr = 0;
-			while (!this._soundCache[`${id}_${itr}`].paused) {
-				itr++;
-				if (itr >= this._cacheSize) return;
-			}
-			const playPromise = this._soundCache[`${id}_${itr}`].play();
-			if (playPromise !== undefined) {
-				playPromise.catch(() => {
-					// Ignore playback errors
-				});
+		const sounds = this._soundCache.get(id);
+		if (sounds) {
+			// Find first available (paused) sound
+			for (let i = 0; i < sounds.length; i++) {
+				if (sounds[i].paused) {
+					const playPromise = sounds[i].play();
+					if (playPromise !== undefined) {
+						playPromise.catch(() => {
+							// Ignore playback errors
+						});
+					}
+					return;
+				}
 			}
 		}
 	}

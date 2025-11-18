@@ -6,11 +6,11 @@ import { States } from "./states.js";
 export class NewWaveState extends State {
 	constructor(game) {
 		super(game);
-		this.game.input.ClearInputEvents();
-		this.game.ShowControlButtons(false);
+		this.input.ClearInputEvents();
+		this.uiManager.ShowControlButtons(false);
 
 		this._countDown = Constants.MATH.MAX_ASTEROID_TYPE;
-		this.game.asteroidCount = this.game.asteroidCount + Constants.WAVE_INC;
+		this.scoreManager.NextWave();
 		this._newWaveTimer = setInterval(() => {
 			this._countDown--;
 			if (this._countDown === 0) {
@@ -26,11 +26,11 @@ export class NewWaveState extends State {
 	}
 
 	// No updates needed for new wave state.
-	Update() {}
+	Update(_frameTime, _canvasWidth, _canvasHeight) {}
 
 	// Draws countdown screen for next wave.
 	Draw() {
 		const textLines = ["new wave in", `${this._countDown}`];
-		this.game.canvas.DrawUIBox(textLines);
+		this.canvas.DrawUIBox(textLines);
 	}
 }

@@ -8,16 +8,14 @@ import { Vector } from "./vector.js";
 export class StartState extends State {
 	constructor(game) {
 		super(game);
-		this.game.input.ClearInputEvents();
+		this.input.ClearInputEvents();
 
-		this.game.score = 0;
-		this.game.ships = Constants.SHIPS;
-		this.game.asteroidCount = Constants.WAVE_START;
-		this.game.ShowControlButtons(false);
+		this.scoreManager.Reset();
+		this.uiManager.ShowControlButtons(false);
 
 		this._asteroids = new Map();
-		const canvasWidth = this.game.canvas.logicalWidth;
-		const canvasHeight = this.game.canvas.logicalHeight;
+		const canvasWidth = this.canvas.logicalWidth;
+		const canvasHeight = this.canvas.logicalHeight;
 		for (let i = 0; i < Constants.ASTEROID_START_SCREEN_COUNT; i++) {
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
@@ -43,7 +41,7 @@ export class StartState extends State {
 			clearInterval(this._showPressSpaceTimer);
 			this.game.SetState(States.GAME);
 		};
-		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
+		this.input.AddKeyDownEvent(Keys.SPACE, continueGame);
 		if (IS_MOBILE) {
 			this._setupMobileTouchHandler(continueGame);
 		}
@@ -55,11 +53,9 @@ export class StartState extends State {
 	}
 
 	// Updates asteroids and handles their collisions.
-	Update() {
-		const canvasWidth = this.game.canvas.logicalWidth;
-		const canvasHeight = this.game.canvas.logicalHeight;
+	Update(frameTime, canvasWidth, canvasHeight) {
 		for (const asteroid of this._asteroids.values()) {
-			asteroid.Update(this.game.frameTime, canvasWidth, canvasHeight);
+			asteroid.Update(frameTime, canvasWidth, canvasHeight);
 		}
 		this.game.DoAsteroidColisions(this._asteroids);
 	}
@@ -67,13 +63,13 @@ export class StartState extends State {
 	// Draws asteroids and title screen UI.
 	Draw() {
 		for (const asteroid of this._asteroids.values()) {
-			asteroid.Draw(this.game.canvas);
+			asteroid.Draw(this.canvas);
 		}
 		const textLines = [
 			"astrohunter",
-			`highscore : ${this.game.highscore}`,
+			`highscore : ${this.scoreManager.highscore}`,
 			this._showPressSpace ? Constants.START_TEXT : null,
 		];
-		this.game.canvas.DrawUIBox(textLines);
+		this.canvas.DrawUIBox(textLines);
 	}
 }

@@ -6,28 +6,21 @@ import { States } from "./states.js";
 export class GameOverState extends State {
 	constructor(game) {
 		super(game);
-		this.game.input.ClearInputEvents();
-		this.game.ShowControlButtons(false);
+		this.input.ClearInputEvents();
+		this.uiManager.ShowControlButtons(false);
 
 		this._showPressSpace = true;
 		this._showPressSpaceTimer = setInterval(() => {
 			this._showPressSpace = !this._showPressSpace;
 		}, Constants.TIMERS.PRESS_SPACE_BLINK);
 
-		if (this.game.score > this.game.highscore) {
-			this.game.highscore = this.game.score;
-			try {
-				localStorage.highscore = this.game.highscore.toString();
-			} catch (_e) {
-				// localStorage not available or quota exceeded
-			}
-		}
+		this.scoreManager.UpdateHighscore();
 
 		const continueGame = () => {
 			clearInterval(this._showPressSpaceTimer);
 			this.game.SetState(States.START);
 		};
-		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
+		this.input.AddKeyDownEvent(Keys.SPACE, continueGame);
 		if (IS_MOBILE) {
 			this._setupMobileTouchHandler(continueGame);
 		}
@@ -39,15 +32,15 @@ export class GameOverState extends State {
 	}
 
 	// No updates needed for game over state.
-	Update() {}
+	Update(_frameTime, _canvasWidth, _canvasHeight) {}
 
 	// Draws game over screen with final score.
 	Draw() {
 		const textLines = [
 			"game over!",
-			`score : ${this.game.score}`,
+			`score : ${this.scoreManager.score}`,
 			this._showPressSpace ? Constants.CONTINUE_TEXT : null,
 		];
-		this.game.canvas.DrawUIBox(textLines);
+		this.canvas.DrawUIBox(textLines);
 	}
 }
