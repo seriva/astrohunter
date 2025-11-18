@@ -79,46 +79,11 @@ export class StartState extends State {
 	Draw() {
 		for (const key in this._asteroids)
 			this._asteroids[key].Draw(this.game.canvas);
-		const centerX = this.game.canvas.GetCenterX();
-		const centerY = this.game.canvas.GetCenterY();
-		const boxDims = this.game.canvas.GetUIBoxDimensions();
-		const offsetScale = this.game.canvas.GetBoxOffsetScale(boxDims);
-		this.game.canvas.DrawUIBox(centerX, centerY, "", 0, 0, boxDims);
-		// Calculate font sizes that fit within the box
-		const titleSize = this.game.canvas.GetFontSizeForBox(
-			boxDims.width,
-			boxDims.height,
-			80,
-		);
-		const textSize = this.game.canvas.GetFontSizeForBox(
-			boxDims.width,
-			boxDims.height,
-			40,
-		);
-		this.game.canvas.DrawText(
+		const textLines = [
 			"astrohunter",
-			centerX,
-			centerY + Constants.TEXT_OFFSET.TOP * offsetScale,
-			titleSize,
-			"center",
-			false,
-		);
-		this.game.canvas.DrawText(
 			`highscore : ${this.game.highscore}`,
-			centerX,
-			centerY + Constants.TEXT_OFFSET.CENTER * offsetScale,
-			textSize,
-			"center",
-			false,
-		);
-		if (this._showPressSpace)
-			this.game.canvas.DrawText(
-				Constants.START_TEXT,
-				centerX,
-				centerY + Constants.TEXT_OFFSET.BOTTOM * offsetScale,
-				textSize,
-				"center",
-				false,
-			);
+			this._showPressSpace ? Constants.START_TEXT : null,
+		];
+		this.game.canvas.DrawUIBox(textLines);
 	}
 }

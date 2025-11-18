@@ -1,21 +1,6 @@
-// Canvas - handles all rendering with dynamic scaling to fill screen.
-import { Constants, IS_MOBILE } from "./constants.js";
-
-// Mobile-specific scaling constants
-const MOBILE_SCALE = {
-	BOX_MULTIPLIER: 1.5,
-	BOX_WIDTH_RATIO: 0.9,
-	BOX_HEIGHT_RATIO: 0.6,
-	FONT_HEIGHT_MULTIPLIER: 0.75,
-	FONT_MIN_MULTIPLIER: 1.2,
-};
-
-const DESKTOP_SCALE = {
-	BOX_WIDTH_RATIO: Constants.UI.BOX_WIDTH_RATIO,
-	BOX_HEIGHT_RATIO: Constants.UI.BOX_HEIGHT_RATIO,
-	FONT_HEIGHT_MULTIPLIER: 0.25,
-	FONT_MIN_MULTIPLIER: 0.5,
-};
+// Canvas - handles all rendering with uniform scaling and letterboxing.
+// Canvas - handles all rendering with uniform scaling and letterboxing.
+import { Constants } from "./constants.js";
 
 export class Canvas {
 	constructor(id, width, height) {
@@ -24,50 +9,37 @@ export class Canvas {
 			throw new Error(`Canvas element with id "${id}" not found`);
 		}
 		this.context = this.element.getContext("2d");
-		this._baseLogicalWidth = width;
-		this._baseLogicalHeight = height;
+		// Fixed logical dimensions
 		this.logicalWidth = width;
 		this.logicalHeight = height;
+		// Physical canvas dimensions
 		this.width = width;
 		this.height = height;
-		this._scaleX = 1;
-		this._scaleY = 1;
+		// Scale factor from logical to physical pixels
+		this._scale = 1;
 		this.context.canvas.width = width;
 		this.context.canvas.height = height;
 	}
 
-	// Resizes canvas to fill screen, adjusting logical dimensions to match aspect ratio.
+	// Resizes canvas to fill screen with uniform scaling.
 	Resize() {
 		const newWidth = window.innerWidth;
 		const newHeight = window.innerHeight;
 
-		// Calculate screen aspect ratio
-		const screenAspectRatio = newWidth / newHeight;
+		// Calculate uniform scale to fill screen while maintaining aspect ratio
+		const scaleX = newWidth / this.logicalWidth;
+		const scaleY = newHeight / this.logicalHeight;
+		this._scale = Math.min(scaleX, scaleY);
 
-		// Calculate base area to maintain roughly consistent gameplay area
-		const baseArea = this._baseLogicalWidth * this._baseLogicalHeight;
+		// Physical canvas size (may be smaller than window to maintain aspect ratio)
+		this.width = this.logicalWidth * this._scale;
+		this.height = this.logicalHeight * this._scale;
 
-		// Adjust logical dimensions to match screen aspect ratio while maintaining similar area
-		// logicalWidth / logicalHeight = screenAspectRatio
-		// logicalWidth * logicalHeight = baseArea
-		// Solving: logicalHeight = sqrt(baseArea / screenAspectRatio)
-		//          logicalWidth = logicalHeight * screenAspectRatio
-		this.logicalHeight = Math.sqrt(baseArea / screenAspectRatio);
-		this.logicalWidth = this.logicalHeight * screenAspectRatio;
-
-		// Calculate uniform scale (no stretching - scaleX = scaleY)
-		this._scaleX = newWidth / this.logicalWidth;
-		this._scaleY = newHeight / this.logicalHeight;
-
-		// Use full window dimensions (no letterboxing)
-		this.width = newWidth;
-		this.height = newHeight;
-
-		// Update canvas internal dimensions to match display size
+		// Update canvas internal dimensions
 		this.context.canvas.width = this.width;
 		this.context.canvas.height = this.height;
 
-		// Update CSS size to fill the window
+		// Update CSS size
 		this.element.style.width = `${this.width}px`;
 		this.element.style.height = `${this.height}px`;
 
@@ -76,53 +48,24 @@ export class Canvas {
 		this.element.style.marginLeft = `${-this.width / 2}px`;
 	}
 
-	// Calculates responsive font size based on screen dimensions.
+	// Calculates responsive font size based on scale.
 	GetResponsiveFontSize(baseSize) {
-		// Scale based on the smaller dimension to ensure text fits on all screens
-		const minDimension = Math.min(this.width, this.height);
-		const baseDimension = Math.min(
-			this._baseLogicalWidth,
-			this._baseLogicalHeight,
-		);
-		const scaleFactor = minDimension / baseDimension;
-		return baseSize * scaleFactor;
+		return baseSize * this._scale;
 	}
 
 	// Calculates font size that fits within a box of given dimensions.
-	GetFontSizeForBox(boxWidth, boxHeight, baseFontSize, padding = 0.15) {
-		const scale = IS_MOBILE ? MOBILE_SCALE : DESKTOP_SCALE;
-		const availableWidth = boxWidth * (1 - padding * 2);
+	GetFontSizeForBox(_boxWidth, boxHeight, _baseFontSize, padding = 0.125) {
 		const availableHeight = boxHeight * (1 - padding * 2);
-		const heightBasedSize = availableHeight * scale.FONT_HEIGHT_MULTIPLIER;
-		const widthBasedSize = (availableWidth / 20) * 0.6; // 20 chars avg, 0.6 char width ratio
-		const boxConstrainedSize = Math.min(heightBasedSize, widthBasedSize);
-		const responsiveSize = this.GetResponsiveFontSize(baseFontSize);
-		return Math.max(
-			Math.min(boxConstrainedSize, responsiveSize),
-			responsiveSize * scale.FONT_MIN_MULTIPLIER,
-		);
-	}
-
-	// Gets the offset scale factor for text positioning relative to box size.
-	GetBoxOffsetScale(boxDims = null) {
-		if (!boxDims) {
-			boxDims = this.GetUIBoxDimensions();
-		}
-		return boxDims.height / Constants.UI.BOX_HEIGHT_MAX;
+		// Use consistent 23% of available height for all text
+		return availableHeight * 0.2;
 	}
 
 	// Gets the UI box dimensions scaled to screen size.
 	GetUIBoxDimensions() {
-		const scale = IS_MOBILE ? MOBILE_SCALE : DESKTOP_SCALE;
-		const widthScale = this.width / this._baseLogicalWidth;
-		const heightScale = this.height / this._baseLogicalHeight;
-		const scaleFactor = IS_MOBILE
-			? (widthScale + heightScale) * 0.5 * MOBILE_SCALE.BOX_MULTIPLIER
-			: Math.min(widthScale, heightScale);
-		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * scaleFactor;
-		const scaledHeight = Constants.UI.BOX_HEIGHT_MAX * scaleFactor;
-		const maxWidth = this.logicalWidth * scale.BOX_WIDTH_RATIO;
-		const maxHeight = this.logicalHeight * scale.BOX_HEIGHT_RATIO;
+		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * this._scale;
+		const scaledHeight = Constants.UI.BOX_HEIGHT_MAX * this._scale;
+		const maxWidth = this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO;
+		const maxHeight = this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO;
 		return {
 			width: Math.min(scaledWidth, maxWidth),
 			height: Math.min(scaledHeight, maxHeight),
@@ -146,9 +89,9 @@ export class Canvas {
 		this.context.textBaseline = a === "center" ? "middle" : "top";
 		const fontSize = responsive
 			? this.GetResponsiveFontSize(s)
-			: s * this._scaleX;
+			: s * this._scale;
 		this.context.font = `bold ${fontSize}px GameFont`;
-		this.context.fillText(t, x * this._scaleX, y * this._scaleX);
+		this.context.fillText(t, x * this._scale, y * this._scale);
 	}
 
 	// Draws a rectangle with optional stroke.
@@ -156,15 +99,15 @@ export class Canvas {
 		this.context.beginPath();
 		this.context.fillStyle = fs;
 		this.context.rect(
-			x * this._scaleX,
-			y * this._scaleX,
-			w * this._scaleX,
-			h * this._scaleX,
+			x * this._scale,
+			y * this._scale,
+			w * this._scale,
+			h * this._scale,
 		);
 		this.context.fill();
 
 		if (lw !== undefined && ss !== undefined) {
-			this.context.lineWidth = lw * this._scaleX;
+			this.context.lineWidth = lw * this._scale;
 			this.context.strokeStyle = ss;
 			this.context.stroke();
 		}
@@ -173,30 +116,31 @@ export class Canvas {
 	// Draws a polyline - used for ships, asteroids, and vector graphics.
 	DrawPolyLine(data, x, y, s) {
 		this.context.strokeStyle = "#ffffff";
-		this.context.lineWidth = 2 * this._scaleX;
+		this.context.lineWidth = 2 * this._scale;
 		this.context.beginPath();
 		this.context.moveTo(
-			(x + data[0].x * s) * this._scaleX,
-			(y + data[0].y * s) * this._scaleX,
+			(x + data[0].x * s) * this._scale,
+			(y + data[0].y * s) * this._scale,
 		);
 		for (let i = 1; i < data.length; i++) {
 			this.context.lineTo(
-				(x + data[i].x * s) * this._scaleX,
-				(y + data[i].y * s) * this._scaleX,
+				(x + data[i].x * s) * this._scale,
+				(y + data[i].y * s) * this._scale,
 			);
 		}
 		this.context.lineTo(
-			(x + data[0].x * s) * this._scaleX,
-			(y + data[0].y * s) * this._scaleX,
+			(x + data[0].x * s) * this._scale,
+			(y + data[0].y * s) * this._scale,
 		);
 		this.context.stroke();
 	}
 
-	// Draws a UI box with centered text - used for pause, game over, etc.
-	DrawUIBox(centerX, centerY, text, fontSize, textOffsetY = 0, boxDims = null) {
-		if (!boxDims) {
-			boxDims = this.GetUIBoxDimensions();
-		}
+	// Draws a UI box with centered text lines
+	DrawUIBox(textLines, centerX = null, centerY = null) {
+		if (centerX === null) centerX = this.GetCenterX();
+		if (centerY === null) centerY = this.GetCenterY();
+
+		const boxDims = this.GetUIBoxDimensions();
 		this.DrawRect(
 			centerX - boxDims.width / 2,
 			centerY - boxDims.height / 2,
@@ -206,20 +150,41 @@ export class Canvas {
 			"#ffffff",
 			Constants.UI.BOX_STROKE_WIDTH.toString(),
 		);
-		if (text) {
-			const boxFontSize = this.GetFontSizeForBox(
-				boxDims.width,
-				boxDims.height,
-				fontSize,
-			);
-			this.DrawText(
-				text,
-				centerX,
-				centerY + textOffsetY,
-				boxFontSize,
-				"center",
-				false,
-			);
+
+		if (!textLines || textLines.length === 0) return;
+
+		const textSize = this.GetFontSizeForBox(boxDims.width, boxDims.height, 50);
+		const lineCount = textLines.length;
+
+		// Calculate vertical spacing based on number of lines
+		let offsets;
+		if (lineCount === 3) {
+			// Top, center, bottom
+			offsets = [-0.3, 0, 0.3];
+		} else if (lineCount === 2) {
+			// Top and bottom
+			offsets = [-0.12, 0.12];
+		} else if (lineCount === 1) {
+			// Centered
+			offsets = [0];
+		} else {
+			// Distribute evenly
+			const spacing = 0.6 / (lineCount - 1);
+			offsets = textLines.map((_, i) => -0.3 + i * spacing);
 		}
+
+		textLines.forEach((line, index) => {
+			if (line) {
+				// Skip null/undefined lines (for conditional rendering)
+				this.DrawText(
+					line,
+					centerX,
+					centerY + boxDims.height * offsets[index],
+					textSize,
+					"center",
+					false,
+				);
+			}
+		});
 	}
 }

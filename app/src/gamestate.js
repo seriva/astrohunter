@@ -192,27 +192,41 @@ export class GameState extends State {
 
 		// Align stats to top-left corner
 		const margin = Constants.UI.TOP_MARGIN;
+		// Draw score (just the number) on the left
 		this.game.canvas.DrawText(
-			`score : ${this.game.score}`,
+			`${this.game.score}`,
 			margin,
 			margin,
 			Constants.UI.TEXT_SIZE,
 			"left",
 		);
-		this.game.canvas.DrawText(
-			`ships : ${this.game.ships}`,
-			margin,
-			margin + Constants.UI.LINE_HEIGHT,
-			Constants.UI.TEXT_SIZE,
-			"left",
-		);
-		if (this._pause)
-			this.game.canvas.DrawUIBox(
-				this.game.canvas.GetCenterX(),
-				this.game.canvas.GetCenterY(),
-				"pause",
-				90,
-			);
+
+		// Draw remaining ships as icons on the right (static ship shape pointing up)
+		const shipIconSize = 1.0;
+		const shipSpacing = 30;
+		const maxShips = Constants.SHIPS;
+		const shipIcon = [
+			new Vector(0, -18),
+			new Vector(-13, 14),
+			new Vector(0, 11),
+			new Vector(13, 14),
+			new Vector(0, -18),
+		];
+
+		// Position ships from right, remove from left to right
+		const canvasWidth = this.game.canvas.logicalWidth;
+		const shipWidth = 13 * shipIconSize; // Half-width of ship scaled
+		const shipHeight = 18 * shipIconSize; // Top point of ship scaled
+		const totalShipsWidth = (maxShips - 1) * shipSpacing;
+		const startX = canvasWidth - margin - totalShipsWidth - shipWidth;
+
+		for (let i = 0; i < this.game.ships; i++) {
+			const shipX = startX + (maxShips - this.game.ships + i) * shipSpacing;
+			const shipY = margin + shipHeight; // Add ship height so top isn't cut off
+			this.game.canvas.DrawPolyLine(shipIcon, shipX, shipY, shipIconSize);
+		}
+
+		if (this._pause) this.game.canvas.DrawUIBox(["pause"]);
 	}
 
 	// Private: Handles collision between ship and asteroids.

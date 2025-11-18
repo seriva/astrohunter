@@ -74,7 +74,7 @@ export const Constants = {
 	UI: {
 		TOP_MARGIN: 10,
 		LINE_HEIGHT: 35,
-		TEXT_SIZE: 30,
+		TEXT_SIZE: 40,
 		BOX_WIDTH_MAX: 725,
 		BOX_WIDTH_RATIO: 0.8,
 		BOX_HEIGHT_MAX: 250,
@@ -84,11 +84,11 @@ export const Constants = {
 		BUTTON_SPACING: 10,
 	},
 	TEXT_OFFSET: {
-		TOP: -60,
+		TOP: -55,
 		CENTER: 0,
-		BOTTOM: 60,
-		SMALL_OFFSET: -30,
-		SMALL_OFFSET_POS: 30,
+		BOTTOM: 55,
+		SMALL_OFFSET: -27.5,
+		SMALL_OFFSET_POS: -27.5,
 	},
 
 	TIMERS: {
@@ -115,7 +115,7 @@ export const Constants = {
 
 	SCREEN_WRAP_MARGIN: 5,
 
-	START_TEXT: "hit space to start game",
+	START_TEXT: "hit space to start",
 	CONTINUE_TEXT: "hit space to continue",
 
 	BUTTON_IDOL_OPACITY: 0.4,
