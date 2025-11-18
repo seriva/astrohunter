@@ -1,5 +1,4 @@
 // Canvas - handles all rendering with uniform scaling and letterboxing.
-// Canvas - handles all rendering with uniform scaling and letterboxing.
 import { Constants } from "./constants.js";
 
 export class Canvas {

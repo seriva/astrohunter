@@ -34,9 +34,11 @@ export const Constants = {
 	BULLET_RADIUS: 4,
 	BULLET_LIFETIME: 500,
 	BULLET_ACCELERATION: 1.0,
+	BULLET_DRAW_OFFSET: 2,
 
 	EXPLOSION_ACCELERATION: 0.5,
 	EXPLOSION_PART_RADIUS: 2.0,
+	EXPLOSION_DRAW_OFFSET: 2,
 	EXPLOSION: {
 		SHIP: { particles: 75, lifetime: 300, vibrate: 100 },
 		BULLET: { particles: 10, lifetime: 100, vibrate: 0 },

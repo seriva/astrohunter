@@ -33,6 +33,11 @@ export class GameOverState extends State {
 		}
 	}
 
+	// Called when leaving this state - cleanup resources
+	Exit() {
+		clearInterval(this._showPressSpaceTimer);
+	}
+
 	// No updates needed for game over state.
 	Update() {}
 

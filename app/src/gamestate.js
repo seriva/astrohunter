@@ -196,13 +196,15 @@ export class GameState extends State {
 
 		const frameTime = this.game.frameTime;
 		const canvas = this.game.canvas;
+		const canvasWidth = canvas.logicalWidth;
+		const canvasHeight = canvas.logicalHeight;
 
-		this._ship.Update(frameTime, this.game.input, canvas);
+		this._ship.Update(frameTime, this.game.input, canvasWidth, canvasHeight);
 		for (const bullet of this._bullets.values()) {
-			bullet.Update(frameTime, canvas);
+			bullet.Update(frameTime, canvasWidth, canvasHeight);
 		}
 		for (const asteroid of this._asteroids.values()) {
-			asteroid.Update(frameTime, canvas);
+			asteroid.Update(frameTime, canvasWidth, canvasHeight);
 		}
 		for (const explosion of this._explosions.values()) {
 			explosion.Update(frameTime);

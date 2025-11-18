@@ -8,7 +8,7 @@ export class Entity {
 		this.pos = new Vector(0, 0);
 		this.dir = new Vector(0, 0);
 		this.radius = 0;
-		this.created = Date.now();
+		this.lifetime = 0;
 	}
 
 	Update(_frametime) {}

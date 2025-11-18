@@ -21,7 +21,7 @@ export class Ship extends Entity {
 	}
 
 	// Updates ship rotation, movement, and position based on input.
-	Update(frametime, input, canvas) {
+	Update(frametime, input, canvasWidth, canvasHeight) {
 		// Ship rotation
 		let rotation = 0;
 		if (input.IsDown(Keys.LEFT) || this.rotateLeft) {
@@ -50,7 +50,7 @@ export class Ship extends Entity {
 			this._showFlame = true;
 		}
 		this.pos.Add(this._velocity.x, this._velocity.y);
-		this.CapOnScreen(canvas.logicalWidth, canvas.logicalHeight);
+		this.CapOnScreen(canvasWidth, canvasHeight);
 	}
 
 	// Draws the ship and flame effect.
@@ -80,6 +80,10 @@ export class Ship extends Entity {
 
 	// Public API: Resets ship to position with invincibility period and blinking effect.
 	ResetShip(x, y) {
+		// Clear any existing timers from previous reset
+		if (this._immuneTimer) clearInterval(this._immuneTimer);
+		if (this._blinkTimer) clearInterval(this._blinkTimer);
+
 		this.pos.Set(x, y);
 		this.dir.Set(0, -1);
 		this._velocity.Set(0, 0);
@@ -90,16 +94,18 @@ export class Ship extends Entity {
 		this.rotateLeft = false;
 		this.rotateRight = false;
 		let counter = Constants.SHIP_IMMUME - 1;
-		const immumeHitTimer = setInterval(() => {
+		this._immuneTimer = setInterval(() => {
 			counter--;
 			if (counter === 0) {
 				this.canBeHit = true;
 				this.isVisible = true;
-				clearInterval(immumeHitTimer);
-				clearInterval(blinkTimer);
+				clearInterval(this._immuneTimer);
+				clearInterval(this._blinkTimer);
+				this._immuneTimer = null;
+				this._blinkTimer = null;
 			}
 		}, Constants.TIMERS.IMMUNE_INTERVAL);
-		const blinkTimer = setInterval(() => {
+		this._blinkTimer = setInterval(() => {
 			this.isVisible = !this.isVisible;
 		}, Constants.TIMERS.BLINK_INTERVAL);
 	}

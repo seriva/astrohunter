@@ -17,7 +17,7 @@ export class Vector {
 		this.y += y;
 	}
 
-	Min(x, y) {
+	Sub(x, y) {
 		this.x -= x;
 		this.y -= y;
 	}

@@ -20,6 +20,11 @@ export class NewWaveState extends State {
 		}, Constants.TIMERS.WAVE_COUNTDOWN);
 	}
 
+	// Called when leaving this state - cleanup resources
+	Exit() {
+		clearInterval(this._newWaveTimer);
+	}
+
 	// No updates needed for new wave state.
 	Update() {}
 

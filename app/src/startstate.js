@@ -49,10 +49,17 @@ export class StartState extends State {
 		}
 	}
 
+	// Called when leaving this state - cleanup resources
+	Exit() {
+		clearInterval(this._showPressSpaceTimer);
+	}
+
 	// Updates asteroids and handles their collisions.
 	Update() {
+		const canvasWidth = this.game.canvas.logicalWidth;
+		const canvasHeight = this.game.canvas.logicalHeight;
 		for (const asteroid of this._asteroids.values()) {
-			asteroid.Update(this.game.frameTime, this.game.canvas);
+			asteroid.Update(this.game.frameTime, canvasWidth, canvasHeight);
 		}
 		this.game.DoAsteroidColisions(this._asteroids);
 	}

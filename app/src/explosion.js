@@ -36,19 +36,20 @@ export class Explosion extends Entity {
 			);
 		}
 
-		// Update lifetime and remove if expands lifetime
-		const delta = Date.now() - this.created;
-		if (delta > this._lifetime) {
+		// Update lifetime and remove if expired
+		this.lifetime += frametime;
+		if (this.lifetime > this._lifetime) {
 			this.OnDestroy();
 		}
 	}
 
 	// Draws explosion particles as small white rectangles.
 	Draw(canvas) {
+		const offset = Constants.EXPLOSION_DRAW_OFFSET;
 		for (let i = 0; i < this._points.length; i++) {
 			canvas.DrawRect(
-				this.pos.x + this._points[i].x - 2,
-				this.pos.y + this._points[i].y - 2,
+				this.pos.x + this._points[i].x - offset,
+				this.pos.y + this._points[i].y - offset,
 				Constants.EXPLOSION_PART_RADIUS,
 				Constants.EXPLOSION_PART_RADIUS,
 				"#ffffff",
