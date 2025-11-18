@@ -148,6 +148,30 @@ export class GameState extends State {
 			this._pause = !this._pause;
 		};
 		this.game.input.AddKeyDownEvent(Keys.P, togglePause);
+
+		// Mobile: tap HUD area (top 60px) to pause
+		if (IS_MOBILE) {
+			this._hudTapHandler = (e) => {
+				const touch = e.touches[0] || e.changedTouches[0];
+				const rect = this.game.canvas.element.getBoundingClientRect();
+				const y = touch.clientY - rect.top;
+				// Check if tap is in HUD area (top 60 scaled pixels)
+				if (y < 60 * this.game.canvas._scale) {
+					togglePause();
+					e.preventDefault();
+				}
+			};
+			this.game.canvas.element.addEventListener(
+				"touchstart",
+				this._hudTapHandler,
+				false,
+			);
+			this._touchListeners.push({
+				button: this.game.canvas.element,
+				type: "touchstart",
+				handler: this._hudTapHandler,
+			});
+		}
 		this.game.input.AddKeyDownEvent(Keys.ESCAPE, togglePause);
 	}
 
@@ -197,13 +221,13 @@ export class GameState extends State {
 			`${this.game.score}`,
 			margin,
 			margin,
-			Constants.UI.TEXT_SIZE,
+			Constants.UI.HUD_SCORE_SIZE,
 			"left",
 		);
 
 		// Draw remaining ships as icons on the right (static ship shape pointing up)
-		const shipIconSize = 1.0;
-		const shipSpacing = 30;
+		const shipIconSize = Constants.UI.HUD_SHIP_ICON_SIZE;
+		const shipSpacing = Constants.UI.HUD_SHIP_SPACING;
 		const maxShips = Constants.SHIPS;
 		const shipIcon = [
 			new Vector(0, -18),

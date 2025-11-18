@@ -1,4 +1,4 @@
-# AstroHunter - Cursor AI Rules
+# AstroHunter - GitHub Copilot Instructions
 
 ## Project Overview
 This is an Asteroids-style game built with ES6 modules, HTML5 Canvas, and modern JavaScript. The game uses a class-based architecture with entity-component patterns and state management.
@@ -161,4 +161,3 @@ for (const key in this.entities) {
 - Vector operations are mutable (modify the vector)
 - Use `Constants.MATH.FULL_CIRCLE_DEG` instead of `360`
 - Use `Keys` constants instead of numeric key codes
-

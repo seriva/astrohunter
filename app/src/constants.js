@@ -82,6 +82,9 @@ export const Constants = {
 		BOX_STROKE_WIDTH: 3,
 		BUTTON_MARGIN: 5,
 		BUTTON_SPACING: 10,
+		HUD_SCORE_SIZE: 48,
+		HUD_SHIP_ICON_SIZE: 1.2,
+		HUD_SHIP_SPACING: 40,
 	},
 	TEXT_OFFSET: {
 		TOP: -55,
