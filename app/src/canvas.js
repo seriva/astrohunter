@@ -60,15 +60,13 @@ export class Canvas {
 		return availableHeight * 0.2;
 	}
 
-	// Gets the UI box dimensions scaled to screen size.
+	// Gets the UI box dimensions in logical coordinates.
 	GetUIBoxDimensions() {
-		const scaledWidth = Constants.UI.BOX_WIDTH_MAX * this._scale;
-		const scaledHeight = Constants.UI.BOX_HEIGHT_MAX * this._scale;
 		const maxWidth = this.logicalWidth * Constants.UI.BOX_WIDTH_RATIO;
 		const maxHeight = this.logicalHeight * Constants.UI.BOX_HEIGHT_RATIO;
 		return {
-			width: Math.min(scaledWidth, maxWidth),
-			height: Math.min(scaledHeight, maxHeight),
+			width: Math.min(Constants.UI.BOX_WIDTH_MAX, maxWidth),
+			height: Math.min(Constants.UI.BOX_HEIGHT_MAX, maxHeight),
 		};
 	}
 
