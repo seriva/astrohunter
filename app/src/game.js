@@ -7,7 +7,7 @@ import { NewWaveState } from "./newwavestate.js";
 import { Sound } from "./sound.js";
 import { StartState } from "./startstate.js";
 import { States } from "./states.js";
-import { Vector } from "./vector.js";
+import { UIManager } from "./uimanager.js";
 
 // Game - main class managing game loop, states, and overall game logic.
 export class Game {
@@ -21,29 +21,36 @@ export class Game {
 		// Initial resize
 		this.canvas.Resize();
 
+		// UI Manager for mobile controls
+		this.uiManager = new UIManager(this.canvas);
+
 		// Ensure resize after page is fully loaded (handles edge cases)
 		if (document.readyState === "loading") {
 			window.addEventListener("DOMContentLoaded", () => {
 				this.canvas.Resize();
-				this.PlaceAndSizeButtons();
+				this.uiManager.PlaceAndSizeButtons();
 			});
 		} else {
 			// Page already loaded, do an immediate resize
 			setTimeout(() => {
 				this.canvas.Resize();
-				this.PlaceAndSizeButtons();
+				this.uiManager.PlaceAndSizeButtons();
 			}, 0);
 		}
 
 		//Input
 		this.input = new Input();
-		this.forward = document.getElementById("forward");
-		this.left = document.getElementById("left");
-		this.right = document.getElementById("right");
-		this.fire = document.getElementById("fire");
+
+		// Get button references from UIManager
+		if (IS_MOBILE) {
+			this.forward = this.uiManager.forward;
+			this.left = this.uiManager.left;
+			this.right = this.uiManager.right;
+			this.fire = this.uiManager.fire;
+		}
 
 		// Initial button placement
-		this.PlaceAndSizeButtons();
+		this.uiManager.PlaceAndSizeButtons();
 
 		// Throttle resize handler for better performance
 		let resizeTimeout;
@@ -51,7 +58,7 @@ export class Game {
 			clearTimeout(resizeTimeout);
 			resizeTimeout = setTimeout(() => {
 				this.canvas.Resize();
-				this.PlaceAndSizeButtons();
+				this.uiManager.PlaceAndSizeButtons();
 			}, Constants.TIMERS.RESIZE_THROTTLE);
 		};
 
@@ -65,7 +72,7 @@ export class Game {
 				// Delay to allow orientation change to complete
 				setTimeout(() => {
 					this.canvas.Resize();
-					this.PlaceAndSizeButtons();
+					this.uiManager.PlaceAndSizeButtons();
 				}, Constants.TIMERS.ORIENTATION_DELAY);
 			},
 			false,
@@ -156,8 +163,13 @@ export class Game {
 
 	// Public API: Switches to a different game state.
 	SetState(state) {
+		// Clean up previous state
+		this._currentState?.Exit();
+
 		this.state = state;
 		delete this._currentState;
+
+		// Create new state
 		switch (state) {
 			case States.START:
 				this._currentState = new StartState(this);
@@ -172,111 +184,74 @@ export class Game {
 				this._currentState = new GameOverState(this);
 				break;
 		}
-	}
 
-	// Places and sizes mobile control buttons.
-	PlaceAndSizeButtons() {
-		if (!IS_MOBILE) return;
-		const setButtons = (button, size, x, y) => {
-			button.style.left = `${Math.round(x)}px`;
-			button.style.top = `${Math.round(y)}px`;
-			button.style.height = `${Math.round(size)}px`;
-			button.style.width = `${Math.round(size)}px`;
-			button.style.borderRadius = `${Math.round(size / 2)}px`;
-		};
-		const left = this.canvas.element.offsetLeft;
-		const top = this.canvas.element.offsetTop;
-		const height = this.canvas.element.clientHeight;
-		const width = this.canvas.element.clientWidth;
-		const size = Math.round(
-			(Constants.MOB_BUTTON_SIZE * width) / this.canvas.logicalWidth,
-		);
-		setButtons(
-			this.left,
-			size,
-			left + Constants.UI.BUTTON_MARGIN,
-			top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
-		);
-		setButtons(
-			this.right,
-			size,
-			left + size + Constants.UI.BUTTON_MARGIN,
-			top + (height - size) - Constants.UI.BUTTON_SPACING,
-		);
-		setButtons(
-			this.forward,
-			size,
-			left + (width - (size + Constants.UI.BUTTON_SPACING)),
-			top + (height - 2 * size) - Constants.UI.BUTTON_SPACING,
-		);
-		setButtons(
-			this.fire,
-			size,
-			left + (width - (size * 2 + Constants.UI.BUTTON_SPACING)),
-			top + (height - size) - Constants.UI.BUTTON_SPACING,
-		);
+		// Initialize new state
+		this._currentState?.Enter();
 	}
 
 	// Shows or hides mobile control buttons.
 	ShowControlButtons(visible) {
-		if (!IS_MOBILE) return;
-		const buttons = [this.forward, this.left, this.right, this.fire];
-		buttons.forEach((button) => {
-			button.style.opacity = Constants.BUTTON_IDOL_OPACITY;
-			button.style.visibility = visible ? "visible" : "hidden";
-		});
+		this.uiManager.ShowControlButtons(visible);
 	}
 
 	// Handles collisions between asteroids (bouncing them apart).
-	DoAsteroidColisions(a) {
-		const keys = Object.keys(a);
-		for (let i = 0; i < keys.length; i++) {
-			for (let j = i + 1; j < keys.length; j++) {
-				const e1 = a[keys[i]];
-				const e2 = a[keys[j]];
-				if (e1.IsColliding(e2)) {
-					const dx = e2.pos.x - e1.pos.x;
-					const dy = e2.pos.y - e1.pos.y;
-					const distSq = dx * dx + dy * dy;
-					const minDist = e1.radius + e2.radius;
-					const minDistSq = minDist * minDist;
+	DoAsteroidColisions(asteroidMap) {
+		const asteroids = Array.from(asteroidMap.values());
+		const count = asteroids.length;
 
-					// Only process if actually colliding (already checked by IsColliding, but verify)
-					if (distSq < minDistSq) {
-						// Handle case where asteroids are on top of each other
-						const dist =
-							distSq < Constants.COLLISION.MIN_DISTANCE_SQ
-								? Constants.COLLISION.FALLBACK_DISTANCE
-								: Math.sqrt(distSq);
-						const invDist = 1 / dist;
-						const nx = dx * invDist;
-						const ny = dy * invDist;
-						const overlap = minDist - dist;
+		for (let i = 0; i < count; i++) {
+			const e1 = asteroids[i];
+			const e1x = e1.pos.x;
+			const e1y = e1.pos.y;
+			const e1r = e1.radius;
 
-						// Only separate if they're overlapping
-						if (overlap > 0) {
-							// Push apart by overlap amount plus a small extra to prevent sticking
-							const pushAmount =
-								(overlap + Constants.COLLISION.SEPARATION_EXTRA) *
-								Constants.COLLISION.PUSH_FACTOR;
-							e1.pos.x -= nx * pushAmount;
-							e1.pos.y -= ny * pushAmount;
-							e2.pos.x += nx * pushAmount;
-							e2.pos.y += ny * pushAmount;
-						}
+			for (let j = i + 1; j < count; j++) {
+				const e2 = asteroids[j];
 
-						// Swap velocities for elastic collision
-						const d = new Vector(nx, ny);
-						const aci = e1.dir.Dot(d);
-						const bci = e2.dir.Dot(d);
-						const acf = bci;
-						const bcf = aci;
+				// Quick distance check before full collision test
+				const dx = e2.pos.x - e1x;
+				const dy = e2.pos.y - e1y;
+				const distSq = dx * dx + dy * dy;
+				const minDist = e1r + e2.radius;
+				const minDistSq = minDist * minDist;
 
-						e1.dir.Set((acf - aci) * d.x, (acf - aci) * d.y);
-						e1.dir.Normalize();
-						e2.dir.Set((bcf - bci) * d.x, (bcf - bci) * d.y);
-						e2.dir.Normalize();
+				// Only proceed if potentially colliding (skip IsColliding call - already have distSq)
+				if (distSq < minDistSq) {
+					// Handle case where asteroids are on top of each other
+					const dist =
+						distSq < Constants.COLLISION.MIN_DISTANCE_SQ
+							? Constants.COLLISION.FALLBACK_DISTANCE
+							: Math.sqrt(distSq);
+					const invDist = 1 / dist;
+					const nx = dx * invDist;
+					const ny = dy * invDist;
+					const overlap = minDist - dist;
+
+					// Only separate if they're overlapping
+					if (overlap > 0) {
+						// Push apart by overlap amount plus a small extra to prevent sticking
+						const pushAmount =
+							(overlap + Constants.COLLISION.SEPARATION_EXTRA) *
+							Constants.COLLISION.PUSH_FACTOR;
+						e1.pos.x -= nx * pushAmount;
+						e1.pos.y -= ny * pushAmount;
+						e2.pos.x += nx * pushAmount;
+						e2.pos.y += ny * pushAmount;
 					}
+
+					// Swap velocities for elastic collision (inline to avoid Vector allocation)
+					const aci = e1.dir.x * nx + e1.dir.y * ny;
+					const bci = e2.dir.x * nx + e2.dir.y * ny;
+					const deltaAci = bci - aci;
+					const deltaBci = aci - bci;
+
+					e1.dir.x += deltaAci * nx;
+					e1.dir.y += deltaAci * ny;
+					e1.dir.Normalize();
+
+					e2.dir.x += deltaBci * nx;
+					e2.dir.y += deltaBci * ny;
+					e2.dir.Normalize();
 				}
 			}
 		}

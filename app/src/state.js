@@ -4,6 +4,12 @@ export class State {
 		this.game = game;
 	}
 
+	// Called when state becomes active
+	Enter() {}
+
+	// Called before state is destroyed
+	Exit() {}
+
 	Update() {}
 
 	Draw() {}

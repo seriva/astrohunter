@@ -15,19 +15,22 @@ export class StartState extends State {
 		this.game.asteroidCount = Constants.WAVE_START;
 		this.game.ShowControlButtons(false);
 
-		this._asteroids = {};
+		this._asteroids = new Map();
 		const canvasWidth = this.game.canvas.logicalWidth;
 		const canvasHeight = this.game.canvas.logicalHeight;
 		for (let i = 0; i < Constants.ASTEROID_START_SCREEN_COUNT; i++) {
 			const dir = new Vector(0, 1);
 			dir.Rotate(Math.random() * Constants.MATH.FULL_CIRCLE_DEG);
-			this._asteroids[i] = new Asteroid(
+			this._asteroids.set(
 				i,
-				Math.floor(Math.random() * (Constants.MATH.MAX_ASTEROID_TYPE + 1)),
-				Math.random() * canvasWidth,
-				Math.random() * canvasHeight,
-				dir.x,
-				dir.y,
+				new Asteroid(
+					i,
+					Math.floor(Math.random() * (Constants.MATH.MAX_ASTEROID_TYPE + 1)),
+					Math.random() * canvasWidth,
+					Math.random() * canvasHeight,
+					dir.x,
+					dir.y,
+				),
 			);
 		}
 
@@ -48,15 +51,17 @@ export class StartState extends State {
 
 	// Updates asteroids and handles their collisions.
 	Update() {
-		for (const key in this._asteroids)
-			this._asteroids[key].Update(this.game.frameTime, this.game.canvas);
+		for (const asteroid of this._asteroids.values()) {
+			asteroid.Update(this.game.frameTime, this.game.canvas);
+		}
 		this.game.DoAsteroidColisions(this._asteroids);
 	}
 
 	// Draws asteroids and title screen UI.
 	Draw() {
-		for (const key in this._asteroids)
-			this._asteroids[key].Draw(this.game.canvas);
+		for (const asteroid of this._asteroids.values()) {
+			asteroid.Draw(this.game.canvas);
+		}
 		const textLines = [
 			"astrohunter",
 			`highscore : ${this.game.highscore}`,
