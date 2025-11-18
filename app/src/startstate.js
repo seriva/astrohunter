@@ -36,35 +36,13 @@ export class StartState extends State {
 			this._showPressSpace = !this._showPressSpace;
 		}, Constants.TIMERS.PRESS_SPACE_BLINK);
 
-		const continueGame = (e) => {
+		const continueGame = () => {
 			clearInterval(this._showPressSpaceTimer);
 			this.game.SetState(States.GAME);
-			if (IS_MOBILE && e) {
-				this.game.canvas.element.removeEventListener(
-					"touchstart",
-					continueGame,
-					false,
-				);
-				this.game.canvas.element.removeEventListener(
-					"touchend",
-					continueGame,
-					false,
-				);
-				e.preventDefault();
-			}
 		};
 		this.game.input.AddKeyDownEvent(Keys.SPACE, continueGame);
 		if (IS_MOBILE) {
-			this.game.canvas.element.addEventListener(
-				"touchstart",
-				continueGame,
-				false,
-			);
-			this.game.canvas.element.addEventListener(
-				"touchend",
-				continueGame,
-				false,
-			);
+			this._setupMobileTouchHandler(continueGame);
 		}
 	}
 

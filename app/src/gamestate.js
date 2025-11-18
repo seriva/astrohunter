@@ -6,7 +6,6 @@ import { Explosion } from "./explosion.js";
 import { Ship } from "./ship.js";
 import { State } from "./state.js";
 import { States } from "./states.js";
-import { mobileAndTabletcheck } from "./utils.js";
 import { Vector } from "./vector.js";
 
 export class GameState extends State {
@@ -29,7 +28,8 @@ export class GameState extends State {
 		this._explosionCounter = 0;
 		this._explosions = {};
 		this._pause = false;
-		this._asteroidCount = 0; // Track count to avoid Object.keys().length		// Create the asteroids
+
+		// Create the asteroids
 		const canvasWidth = this.game.canvas.logicalWidth;
 		const canvasHeight = this.game.canvas.logicalHeight;
 		for (let i = 0; i < this.game.asteroidCount; i++) {
@@ -44,8 +44,9 @@ export class GameState extends State {
 				dir.x,
 				dir.y,
 			);
-			this._asteroidCount++;
-		} // fire functions
+		}
+
+		// fire functions
 		const startFire = (e) => {
 			if (self._fireTimer === 0) {
 				const FireBullet = () => {
@@ -109,28 +110,28 @@ export class GameState extends State {
 			setupTouchButton(
 				this.game.left,
 				() => {
-					this.ship.rotateLeft = true;
+					this._ship.rotateLeft = true;
 				},
 				() => {
-					this.ship.rotateLeft = false;
+					this._ship.rotateLeft = false;
 				},
 			);
 			setupTouchButton(
 				this.game.right,
 				() => {
-					this.ship.rotateRight = true;
+					this._ship.rotateRight = true;
 				},
 				() => {
-					this.ship.rotateRight = false;
+					this._ship.rotateRight = false;
 				},
 			);
 			setupTouchButton(
 				this.game.forward,
 				() => {
-					this.ship.moveForward = true;
+					this._ship.moveForward = true;
 				},
 				() => {
-					this.ship.moveForward = false;
+					this._ship.moveForward = false;
 				},
 			);
 			this.game.fire.addEventListener("touchstart", startFire, false);
@@ -334,15 +335,19 @@ export class GameState extends State {
 		const type = a._type + 1;
 		const pos = a.pos;
 		delete this._asteroids[a.id];
-		if (
-			--this._asteroidCount === 0 &&
-			type > Constants.MATH.MAX_ASTEROID_TYPE
-		) {
-			this.RemoveEvents();
-			this.game.SetState(States.NEWWAVE);
+
+		// Check if wave is complete (no asteroids left and this was the last large one)
+		if (type > Constants.MATH.MAX_ASTEROID_TYPE) {
+			// Count remaining asteroids
+			let remainingCount = 0;
+			for (const _key in this._asteroids) remainingCount++;
+
+			if (remainingCount === 0) {
+				this.RemoveEvents();
+				this.game.SetState(States.NEWWAVE);
+			}
 			return;
 		}
-		if (type > Constants.MATH.MAX_ASTEROID_TYPE) return;
 
 		// Spawn new asteroids
 		for (let i = 0; i < Constants.ASTEROID_SPAWN_COUNT; i++) {
@@ -360,7 +365,6 @@ export class GameState extends State {
 				dir.x,
 				dir.y,
 			);
-			this._asteroidCount++;
 		}
 	}
 }

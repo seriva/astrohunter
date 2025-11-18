@@ -4,11 +4,14 @@ This is just another clone of the famous Asteroid game. Originally written in pu
 
 The game features onscreen controls for mobile browsers and can be installed as a standalone application on mobile devices and desktops.
 
+**Note**: This project is no longer actively maintained or updated.
+
 ## Features
 
 - **Classic Asteroids Gameplay**: Navigate your ship, shoot asteroids, and avoid collisions
 - **Progressive Web App (PWA)**: Installable on mobile devices and desktops with offline support
-- **Mobile Support**: Touch controls optimized for mobile devices
+- **Mobile Support**: Touch controls optimized for mobile devices with HUD tap-to-pause
+- **Pause Functionality**: Pause gameplay anytime (P/ESC on desktop, HUD tap on mobile)
 - **Sound Effects**: Background music and sound effects for enhanced gameplay
 - **Progressive Difficulty**: Multiple waves with increasing challenge
 - **Responsive Design**: Adapts to different screen sizes
@@ -80,11 +83,13 @@ The game features onscreen controls for mobile browsers and can be installed as 
 ### Desktop Controls
 - **Arrow Keys**: Rotate and thrust
 - **Spacebar**: Fire bullets
+- **P or ESC**: Pause game
 - **Spacebar**: Start game / Continue
 
 ### Mobile Controls
 - **Touch Buttons**: On-screen controls for movement and firing
-- **Tap**: Start game / Continue
+- **Tap HUD (top area)**: Pause/unpause game
+- **Tap Screen**: Start game / Continue
 
 ### Gameplay
 - Destroy all asteroids to advance to the next wave
