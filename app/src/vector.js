@@ -2,6 +2,10 @@
 const DEG_TO_RAD = Math.PI / 180;
 
 export class Vector {
+	static Zero() {
+		return new Vector(0, 0);
+	}
+
 	constructor(x, y) {
 		this.x = x;
 		this.y = y;

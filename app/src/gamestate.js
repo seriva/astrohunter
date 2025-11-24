@@ -8,6 +8,15 @@ import { State } from "./state.js";
 import { States } from "./states.js";
 import { Vector } from "./vector.js";
 
+// Static ship icon for HUD display
+const HUD_SHIP_ICON = [
+	new Vector(0, -18),
+	new Vector(-13, 14),
+	new Vector(0, 11),
+	new Vector(13, 14),
+	new Vector(0, -18),
+];
+
 export class GameState extends State {
 	constructor(game) {
 		super(game);
@@ -24,10 +33,9 @@ export class GameState extends State {
 		}
 
 		// Vars.
-		const centerX = this.canvas.GetCenterX();
-		const centerY = this.canvas.GetCenterY();
-		this._ship = new Ship("ship", centerX, centerY);
-		this._ship.ResetShip(centerX, centerY);
+		const center = this.canvas.GetCenter();
+		this._ship = new Ship("ship", center.x, center.y);
+		this._ship.ResetShip(center.x, center.y);
 		this._fireTimer = 0;
 		this._bulletCounter = 0;
 		this._bullets = new Map();
@@ -83,7 +91,7 @@ export class GameState extends State {
 				}, Constants.BULLET_FIRESPEED);
 				FireBullet();
 			}
-			if (IS_MOBILE) {
+			if (IS_MOBILE && e) {
 				self._fire.style.opacity = Constants.BUTTON_PRESSED_OPACITY;
 				e.preventDefault();
 			}
@@ -91,7 +99,7 @@ export class GameState extends State {
 		const endFire = (e) => {
 			clearInterval(self._fireTimer);
 			self._fireTimer = 0;
-			if (IS_MOBILE) {
+			if (IS_MOBILE && e) {
 				self._fire.style.opacity = Constants.BUTTON_IDOL_OPACITY;
 				e.preventDefault();
 			}
@@ -118,33 +126,23 @@ export class GameState extends State {
 					{ button, type: "touchend", handler: endHandler },
 				);
 			};
-			setupTouchButton(
-				this._left,
-				() => {
-					this._ship.rotateLeft = true;
-				},
-				() => {
-					this._ship.rotateLeft = false;
-				},
-			);
-			setupTouchButton(
-				this._right,
-				() => {
-					this._ship.rotateRight = true;
-				},
-				() => {
-					this._ship.rotateRight = false;
-				},
-			);
-			setupTouchButton(
-				this._forward,
-				() => {
-					this._ship.moveForward = true;
-				},
-				() => {
-					this._ship.moveForward = false;
-				},
-			);
+			// Setup control buttons with ship property bindings
+			const buttons = [
+				{ btn: this._left, prop: "rotateLeft" },
+				{ btn: this._right, prop: "rotateRight" },
+				{ btn: this._forward, prop: "moveForward" },
+			];
+			for (const { btn, prop } of buttons) {
+				setupTouchButton(
+					btn,
+					() => {
+						this._ship[prop] = true;
+					},
+					() => {
+						this._ship[prop] = false;
+					},
+				);
+			}
 			this._fire.addEventListener("touchstart", startFire, false);
 			this._fire.addEventListener("touchend", endFire, false);
 			this._touchListeners.push(
@@ -256,13 +254,6 @@ export class GameState extends State {
 		const shipIconSize = Constants.UI.HUD_SHIP_ICON_SIZE;
 		const shipSpacing = Constants.UI.HUD_SHIP_SPACING;
 		const maxShips = Constants.SHIPS;
-		const shipIcon = [
-			new Vector(0, -18),
-			new Vector(-13, 14),
-			new Vector(0, 11),
-			new Vector(13, 14),
-			new Vector(0, -18),
-		];
 
 		// Position ships from right, remove from left to right
 		const canvasWidth = this.canvas.logicalWidth;
@@ -275,7 +266,7 @@ export class GameState extends State {
 			const shipX =
 				startX + (maxShips - this.scoreManager.ships + i) * shipSpacing;
 			const shipY = margin + shipHeight; // Add ship height so top isn't cut off
-			this.canvas.DrawPolyLine(shipIcon, shipX, shipY, shipIconSize);
+			this.canvas.DrawPolyLine(HUD_SHIP_ICON, shipX, shipY, shipIconSize);
 		}
 
 		if (this._pause) this.canvas.DrawUIBox(["pause"]);
@@ -299,7 +290,8 @@ export class GameState extends State {
 				this.game.SetState(States.GAMEOVER);
 				return;
 			}
-			this._ship.ResetShip(this.canvas.GetCenterX(), this.canvas.GetCenterY());
+			const center = this.canvas.GetCenter();
+			this._ship.ResetShip(center.x, center.y);
 			return;
 		}
 	}
@@ -344,7 +336,7 @@ export class GameState extends State {
 			Constants.EXPLOSION.ASTEROID_MULTIPLIER.vibrate,
 		);
 		this.game.sound.PlaySound("explosion");
-		this.game.score += Constants.ASTEROID[a._type].POINTS;
+		this.scoreManager.AddScore(Constants.ASTEROID[a._type].POINTS);
 		const type = a._type + 1;
 		const pos = a.pos;
 		this._asteroids.delete(a.id);

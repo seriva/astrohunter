@@ -53,7 +53,7 @@ export class Canvas {
 	}
 
 	// Calculates font size that fits within a box of given dimensions.
-	GetFontSizeForBox(_boxWidth, boxHeight, _baseFontSize, padding = 0.125) {
+	GetFontSizeForBox(boxHeight, padding = 0.125) {
 		const availableHeight = boxHeight * (1 - padding * 2);
 		// Use consistent 23% of available height for all text
 		return availableHeight * 0.2;
@@ -69,14 +69,9 @@ export class Canvas {
 		};
 	}
 
-	// Gets the center X coordinate of the canvas.
-	GetCenterX() {
-		return this.logicalWidth / 2;
-	}
-
-	// Gets the center Y coordinate of the canvas.
-	GetCenterY() {
-		return this.logicalHeight / 2;
+	// Gets the center coordinates of the canvas.
+	GetCenter() {
+		return { x: this.logicalWidth / 2, y: this.logicalHeight / 2 };
 	}
 
 	// Draws text with automatic scaling and responsive sizing.
@@ -134,8 +129,11 @@ export class Canvas {
 
 	// Draws a UI box with centered text lines
 	DrawUIBox(textLines, centerX = null, centerY = null) {
-		if (centerX === null) centerX = this.GetCenterX();
-		if (centerY === null) centerY = this.GetCenterY();
+		if (centerX === null || centerY === null) {
+			const center = this.GetCenter();
+			if (centerX === null) centerX = center.x;
+			if (centerY === null) centerY = center.y;
+		}
 
 		const boxDims = this.GetUIBoxDimensions();
 		this.DrawRect(
@@ -150,7 +148,7 @@ export class Canvas {
 
 		if (!textLines || textLines.length === 0) return;
 
-		const textSize = this.GetFontSizeForBox(boxDims.width, boxDims.height, 50);
+		const textSize = this.GetFontSizeForBox(boxDims.height);
 		const lineCount = textLines.length;
 
 		// Calculate vertical spacing based on number of lines

@@ -5,8 +5,8 @@ import { Vector } from "./vector.js";
 export class Entity {
 	constructor(id) {
 		this.id = id;
-		this.pos = new Vector(0, 0);
-		this.dir = new Vector(0, 0);
+		this.pos = Vector.Zero();
+		this.dir = Vector.Zero();
 		this.radius = 0;
 		this.lifetime = 0;
 	}

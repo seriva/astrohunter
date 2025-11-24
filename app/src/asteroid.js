@@ -37,8 +37,9 @@ export class Asteroid extends Entity {
 		this.CapOnScreen(canvasWidth, canvasHeight);
 
 		//Rotate the asteroid
-		for (let i = 0; i < this._points.length; i++) {
-			this._points[i].Rotate(this._rotationSpeed * frametime);
+		const rotation = this._rotationSpeed * frametime;
+		for (let i = 0, len = this._points.length; i < len; i++) {
+			this._points[i].Rotate(rotation);
 		}
 	}
 

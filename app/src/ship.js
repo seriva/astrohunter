@@ -3,18 +3,34 @@ import { Constants, Keys } from "./constants.js";
 import { Entity } from "./entity.js";
 import { Vector } from "./vector.js";
 
+// Static ship shape points (reused for all ships)
+const SHIP_POINTS = [
+	new Vector(0, -18),
+	new Vector(-13, 14),
+	new Vector(0, 11),
+	new Vector(13, 14),
+	new Vector(0, -18),
+];
+
+const FLAME_POINTS = [
+	new Vector(-10, 13),
+	new Vector(0, 11),
+	new Vector(10, 13),
+	new Vector(0, 19),
+];
+
 export class Ship extends Entity {
 	constructor(id, x, y) {
 		super(id);
 		this.pos.Set(x, y);
 		this.dir.Set(0, -1);
 		this.radius = Constants.SHIP_RADIUS;
-		this._velocity = new Vector(0, 0);
+		this._velocity = Vector.Zero();
 		this.canBeHit = false;
 		this._showFlame = false;
-		this._SetPoints();
-		// Cache combined points array to avoid recreating every frame
-		this._allPoints = [...this._shipPoints, ...this._flamePoints];
+		// Create instance copies of shape points for rotation
+		this._shipPoints = SHIP_POINTS.map((p) => new Vector(p.x, p.y));
+		this._flamePoints = FLAME_POINTS.map((p) => new Vector(p.x, p.y));
 		this.rotateLeft = false;
 		this.rotateRight = false;
 		this.moveForward = false;
@@ -30,9 +46,17 @@ export class Ship extends Entity {
 		if (input.IsDown(Keys.RIGHT) || this.rotateRight) {
 			rotation = Constants.SHIP_ROTATIONSPEED * frametime;
 		}
-		this.dir.Rotate(rotation);
-		for (let i = 0; i < this._allPoints.length; i++) {
-			this._allPoints[i].Rotate(rotation);
+		if (rotation !== 0) {
+			this.dir.Rotate(rotation);
+			// Rotate both ship and flame points
+			const shipLen = this._shipPoints.length;
+			const flameLen = this._flamePoints.length;
+			for (let i = 0; i < shipLen; i++) {
+				this._shipPoints[i].Rotate(rotation);
+			}
+			for (let i = 0; i < flameLen; i++) {
+				this._flamePoints[i].Rotate(rotation);
+			}
 		}
 
 		//	Movement
@@ -62,34 +86,22 @@ export class Ship extends Entity {
 		}
 	}
 
-	// Private: Defines the ship and flame shape points.
-	_SetPoints() {
-		this._shipPoints = [];
-		this._shipPoints.push(new Vector(0, -18));
-		this._shipPoints.push(new Vector(-13, 14));
-		this._shipPoints.push(new Vector(0, 11));
-		this._shipPoints.push(new Vector(13, 14));
-		this._shipPoints.push(new Vector(0, -18));
-
-		this._flamePoints = [];
-		this._flamePoints.push(new Vector(-10, 13));
-		this._flamePoints.push(new Vector(0, 11));
-		this._flamePoints.push(new Vector(10, 13));
-		this._flamePoints.push(new Vector(0, 19));
-	}
-
 	// Public API: Resets ship to position with invincibility period and blinking effect.
 	ResetShip(x, y) {
 		// Clear any existing timers from previous reset
-		if (this._immuneTimer) clearInterval(this._immuneTimer);
-		if (this._blinkTimer) clearInterval(this._blinkTimer);
+		clearInterval(this._immuneTimer);
+		clearInterval(this._blinkTimer);
 
 		this.pos.Set(x, y);
 		this.dir.Set(0, -1);
 		this._velocity.Set(0, 0);
-		this._SetPoints();
-		// Rebuild cached points array
-		this._allPoints = [...this._shipPoints, ...this._flamePoints];
+		// Reset points to original positions
+		for (let i = 0, len = SHIP_POINTS.length; i < len; i++) {
+			this._shipPoints[i].Set(SHIP_POINTS[i].x, SHIP_POINTS[i].y);
+		}
+		for (let i = 0, len = FLAME_POINTS.length; i < len; i++) {
+			this._flamePoints[i].Set(FLAME_POINTS[i].x, FLAME_POINTS[i].y);
+		}
 		this.canBeHit = false;
 		this.rotateLeft = false;
 		this.rotateRight = false;

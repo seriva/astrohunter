@@ -39,7 +39,7 @@ export class Sound {
 		const sounds = this._soundCache.get(id);
 		if (sounds) {
 			// Find first available (paused) sound
-			for (let i = 0; i < sounds.length; i++) {
+			for (let i = 0, len = sounds.length; i < len; i++) {
 				if (sounds[i].paused) {
 					const playPromise = sounds[i].play();
 					if (playPromise !== undefined) {
