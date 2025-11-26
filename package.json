@@ -20,8 +20,8 @@
   "author": "Luuk van Venrooij",
   "license": "MIT",
   "devDependencies": {
-    "@biomejs/biome": "^2.3.5",
+    "@biomejs/biome": "^2.3.7",
     "husky": "^9.1.7",
-    "microtastic": "^0.0.60"
+    "microtastic": "^0.0.64"
   }
 }
